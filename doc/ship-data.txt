@@ -1,0 +1,13 @@
+Ship Type  Motive Size
+Caravel      SL    3
+Tartane      L     2
+Xebec        L     3
+Geonese      OL    2
+Dromon       OL    2
+Dhow         L     2
+Drakkar      OS    2 
+Trireme      OS    2
+Pentekontor  OS    2
+Merchant     OS    1
+Trader       OS    1
+

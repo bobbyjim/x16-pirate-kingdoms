@@ -1,0 +1,2 @@
+cat main-pk.list module-*.list  > pk.tmp
+perl ../module-basic/basic-labelmaster.pl pk.tmp > pk.bas

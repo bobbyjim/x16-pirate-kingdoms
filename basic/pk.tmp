@@ -1,0 +1,281 @@
+
+input "type <enter> to begin"; sd$:sd=rnd(-ti)
+
+longvar \land
+longvar \rows
+longvar \cols
+longvar \day
+longvar \month
+longvar \year
+longvar \native.offset
+
+\land = 64
+\rows = 7
+\cols = 7
+\native.offset = (\rows * \cols) * 8
+
+dim s0(\rows,\cols) :rem land offset
+dim s1(\rows,\cols) :rem native offset
+dim x(\land),y(\land)
+dim dx(\land),dy(\land)
+dim ch(\land) :rem change flag
+dim l1(15),l2(15)
+dim yy(\rows)
+dim \month$(12)
+
+\month$(0)  = "Wendros 1" :rem jan
+\month$(1)  = "Wendros 2" :rem feb
+\month$(2)  = "Wendros 3" :rem mar
+\month$(3)  = "Hewsreh 1" :rem spring
+\month$(4)  = "Hewsreh 2" :rem summer
+\month$(5)  = "Hewsreh 3" :rem autumn
+\month$(6)  = "Samreh 1 " :rem winder
+\month$(7)  = "Samreh 2 " :rem aug
+\month$(8)  = "Samreh 3  " :rem sep
+\month$(9)  = "Kerpos 1  " :rem oct
+\month$(10) = "Kerpos 2  " :rem nov
+\month$(11) = "Kerpos 3  " :rem dec
+
+\year = 500
+\month = 0
+\day   = 1
+
+px = 134
+py = 30
+
+color 8,0 :rem 0=transparent
+? chr$(147)
+
+POKE $9F29,($40 OR PEEK($9F29)) :REM ENABLE SPRITES
+rem ship
+s0 = $fc10
+x = px + 164
+y = py + 164
+bk = 2
+ls = int(rnd(1)*8) * 32
+fl = 0
+po = 0
+VPOKE $F, S0+0, %00000000+ls :REM LSB
+VPOKE $F, S0+1, %10000000+bk :REM R...BBBB
+VPOKE $F, S0+2, X AND 255    :REM X
+VPOKE $F, S0+3, X  / 256     :REM X MSB
+VPOKE $F, S0+4, Y AND 255    :REM Y
+VPOKE $F, S0+5, Y  / 256     :REM Y MSB
+VPOKE $F, S0+6, %00001100+FL :REM coll,ZZ,FLIP
+VPOKE $F, S0+7, %10100000+PO :REM HHWW+PO
+;VPOKE $F, S0+7, %11110000+PO :REM HHWW+PO
+
+l1(0)=4   :l2(0)=0
+l1(1)=4   :l2(1)=128
+l1(2)=5   :l2(2)=0
+l1(3)=5   :l2(3)=0
+l1(4)=5   :l2(4)=0
+l1(5)=5   :l2(5)=128
+l1(6)=5   :l2(6)=128
+l1(7)=5   :l2(7)=128
+l1(8)=4   :l2(8)=128
+l1(9)=6   :l2(9)=0
+l1(10)=4  :l2(10)=128
+l1(11)=6  :l2(11)=0
+l1(12)=4  :l2(12)=0
+l1(13)=6  :l2(13)=128
+l1(14)=6  :l2(14)=128
+l1(15)=6  :l2(15)=128
+
+rem land and natives
+zz = 0 :rem index into bk() and ls()
+fl = 0 :rem flip?
+for r = 0 to \rows-1
+   for c = 0 to \cols-1
+      ss = r * \rows + c + 1
+      S0 = $FC10 + SS * 8  :rem land offset
+      s1 = s0 + \native.offset :rem native offset
+
+      y(ss) = r * 48
+      x(ss) = c * 48 
+      po = 0 :rem palette offset
+
+      bk=l1(zz)
+      ls=l2(zz)
+      zz=zz+1 :if zz=16 then zz=0
+
+      x = px + x(ss)
+      y = py + y(ss)
+      z = 1 * 4 :rem 1=back,3=front
+      s0(r,c) = s0
+      VPOKE $F, S0+0, %00000000+ls    :REM LSB
+      VPOKE $F, S0+1, %10000000+bk    :REM R...BBBB
+      VPOKE $F, S0+2, X AND 255       :REM X
+      VPOKE $F, S0+3, X  / 256        :REM X MSB
+      VPOKE $F, S0+4, Y AND 255       :REM Y
+      VPOKE $F, S0+5, Y  / 256        :REM Y MSB
+      VPOKE $F, S0+6, %00000000+Z+FL  :REM coll,ZZ,FLIP
+      VPOKE $F, S0+7, %11110000+PO    :REM HHWW..PO
+
+      x = x+16
+      y = y+16
+      z = 0 * 4 :rem set to 2 to be visible
+      s1(r,c) = s1
+      VPOKE $F, S1+0, %00000000+(bk-1)*16
+      VPOKE $F, S1+1, %10000011
+      VPOKE $F, S1+2, X AND 255
+      VPOKE $F, S1+3, X / 256
+      VPOKE $F, S1+4, Y AND 255
+      VPOKE $F, S1+5, Y / 256
+      VPOKE $F, S1+6, %00000000+Z     :rem coll,ZZ,flip
+      VPOKE $F, S1+7, %10100000       :rem 32 x 32
+   next c
+next r
+
+rem ---------------------------------------
+rem
+rem  load ships into bank 1
+rem
+rem ---------------------------------------
+load "xebec-32x32.bin",       8, 1,$a000 
+load "drakkar-32x32.bin",     8, 1,$a400 
+load "dromon-32x32.bin",      8, 1,$a800 
+load "genoese-32x32.bin",     8, 1,$ac00 
+load "sambuk-32x32.bin",      8, 1,$b000 
+load "pentekontor-32x32.bin", 8, 1,$b400 
+load "tartane-32x32.bin",     8, 1,$b800 
+load "trireme-32x32.bin",     8, 1,$bc00
+
+rem ---------------------------------------
+rem
+rem  load settlements into bank 5
+rem
+rem ---------------------------------------
+load "camp-32x32-bw.bin",     8, 5,$a000 
+load "village-32x32-bw.bin",  8, 5,$a400
+load "pueblo-32x32-bw.bin",   8, 5,$a800
+load "aztec-32x32-bw.bin",    8, 5,$ac00
+load "inca-32x32-bw.bin",     8, 5,$b000
+
+rem ---------------------------------------
+rem
+rem  load land into banks 7-9
+rem
+rem ---------------------------------------
+load "ocean.bin",             8, 7,$a000 :rem 7a
+load "island-desert-x.bin",   8, 7,$b000 :rem 7b
+load "island-grass-x.bin",    8, 8,$a000 :rem 8a
+load "island-savannah-x.bin", 8, 8,$b000 :rem 8b
+load "island-forest-x.bin",   8, 9,$a000 :rem 9a
+load "island-mountain-x.bin", 8, 9,$b000 :rem 9b
+
+rem ---------------------------------------
+rem
+rem  load map into banks 10+
+rem
+rem ---------------------------------------
+load "map.bin",               8,10,$a000 :rem bank 10
+
+rem ---------------------------------------
+rem
+rem  load your ship into VERA at $4000
+rem
+rem ---------------------------------------
+poke $9f61,1
+vpoke %10000,$4000,0 :rem set up autoincrement
+for i = $a000 to $bfff
+   poke $9f23,peek(i)
+next
+
+rem ---------------------------------------
+rem
+rem  load settlements into VERA at $6000
+rem
+rem ---------------------------------------
+poke $9f61,5
+vpoke %10000,$6000,0 :rem set up autoincrement
+for i = $a000 to $bfff
+   poke $9f23,peek(i)
+next
+
+rem ---------------------------------------
+rem
+rem  load ocean and land into VERA at $8000
+rem
+rem ---------------------------------------
+vpoke %10000,$8000,0 :rem reset autoincrement
+for bb=7 to 9 :rem banks 7 to 9
+   poke $9f61,bb :rem point to the right bank
+   for i=$a000 to $bfff
+      poke $9f23,peek(i)
+   next
+next
+
+dx=108
+dy=118
+gosub {:draw-map}
+
+{:loop} get a$ :if a$="" goto {:loop}
+   if a$ = "\x9d" then dx=dx-1 :fl=1
+   if a$ = "\x1d" then dx=dx+1 :fl=0
+   if a$ = "\x91" then dy=dy-1 
+   if a$ = "\x11" then dy=dy+1 
+   if a$ = "q" then dx=dx-1:dy=dy-1 :fl=1
+   if a$ = "z" then dx=dx-1:dy=dy+1 :fl=1
+   if a$ = "e" then dx=dx+1:dy=dy-1 :fl=0
+   if a$ = "c" then dx=dx+1:dy=dy+1 :fl=0
+
+   if a$ = "x" then color 1,6 :?chr$(147) :end
+
+   if dx > 248 then dx = 248 :goto {:loop}
+   if dx < 0   then dx = 0   :goto {:loop}
+   if dy > 248 then dy = 248 :goto {:loop}
+   if dy < 0   then dy = 0   :goto {:loop}
+
+   S0 = $FC10 :REM OFFSET
+   VPOKE $F, S0+6, %00001100+FL :REM flip ship
+
+\day = \day + 1
+if \day < 30 then {:skip-text-update}
+\day = 1 :\month = \month +1
+if \month = 12 then \month = 0 : \year = \year +1
+? chr$(19); spc(32); \month$(\month); \year
+? spc(32) dx "," dy
+{:skip-text-update}
+
+gosub {:draw-map}
+
+goto {:loop}
+
+end
+
+{:draw-map}
+rem the map is 256 x 256
+bb=0
+for r = 0 to \rows-1
+
+   y = dy + r
+   rem
+   rem each bank has 32 rows
+   rem
+   y3 = int(y/32)
+   ba = 10 + y3
+   if bb <> ba then bb = ba :poke $9f61,ba
+   yy = 32 * (y/32 - y3)    :rem y mod 32
+
+   for c = 0 to \cols-1
+
+      la = peek($a000+yy*256+dx+c) 
+      lb = la and 240
+      la = la and 15
+      bk=l1(la)
+      ls=l2(la)
+      s1 = s1(r,c)
+
+      if lb=0 then vpoke $f,s1+6,0 :goto {:skip-natives}
+      VPOKE $F, S1, lb
+      VPOKE $F, S1+6, %00001000 :rem ZZ=2
+{:skip-natives}
+
+      S0 = S0(r,c)                    :REM OFFSET
+      VPOKE $F, S0+0, %00000000+ls    :REM LSB
+      VPOKE $F, S0+1, %10000000+bk    :REM R...BBBB
+
+   next c
+next r
+return
