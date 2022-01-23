@@ -1,4 +1,4 @@
-SOURCES = main.c vpoke.c sprite.c calendar.c map.c
+SOURCES = main.c vpoke.c sprite.c calendar.c map.c PSG.c
 
 PROGRAM = PK
 

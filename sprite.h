@@ -23,6 +23,7 @@
 //
 //  Stuff you shouldn't care about
 //
+#define		SPRITE_REGISTER_OFFSET(spritenum)	(spritenum << 3)
 #define 	SPRITE_REGISTERS(spritenum)	((spritenum << 3) + 0xfc00)
 #define     SPRITE_BLOCK_HI(addr)      ((addr >> 13) & 0x1f)
 #define     SPRITE_BLOCK_LO(addr)      ((addr >> 5) & 0xff)
@@ -39,9 +40,9 @@ typedef struct {
     uint8_t  collision_mask;
     uint8_t  layer;
 	uint8_t  dimensions;      
-	int8_t  palette_offset;
-	int     x : 15;
-	int     y : 15;
+	int8_t   palette_offset;
+	int      x : 15;
+	int      y : 15;
 } SpriteDefinition;
 
 typedef struct {
@@ -50,14 +51,13 @@ typedef struct {
 	int y    : 15;
 } Position;
 
-/*
-typedef struct {
-	int x;
-	int y;
-} SmallPosition;
-*/
 
 void sprite_define(uint8_t spritenum, SpriteDefinition *sprdef);
+void sprite_define_in_bank(uint8_t spritenum, SpriteDefinition *sprdef);
+void sprite_changeBlock(uint8_t spritenum, SpriteDefinition *sprdef);
 void sprite_pos(uint8_t spritenum, Position* pos);
+void sprite_flip(uint8_t spritenum, uint8_t flip);
+
+void sprite_refresh();
 
 #endif

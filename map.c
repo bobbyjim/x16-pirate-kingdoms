@@ -4,12 +4,12 @@
 
 #include "map.h"
 #include "sprite.h"
-
-//unsigned char l1[] = { 4,   4, 5, 5, 5,   5,   5,   5,   4, 6,   4, 6, 4,   6,   6,   6 };
-//unsigned char l2[] = { 0, 128, 0, 0, 0, 128, 128, 128, 128, 0, 128, 0, 0, 128, 128, 128 };
+#include "memory.h"
 
 SpriteDefinition mapSprite;
 MapLocation map;
+
+#define         MAP_OFFSET_SCALE       8
 
 void map_init()
 {
@@ -38,9 +38,9 @@ void map_init()
 void map_south(unsigned char v)
 {
     map.yoffset -= v;
-    if (map.yoffset < -24)
+    if (map.yoffset < -24 * MAP_OFFSET_SCALE)
     {
-        map.yoffset = 24;
+        map.yoffset = 24 * MAP_OFFSET_SCALE;
         ++map.y;
     }
 }
@@ -48,9 +48,9 @@ void map_south(unsigned char v)
 void map_north(unsigned char v)
 {
     map.yoffset += v;
-    if (map.yoffset > 24)
+    if (map.yoffset > 24 * MAP_OFFSET_SCALE)
     {
-        map.yoffset = -24;
+        map.yoffset = -24 * MAP_OFFSET_SCALE;
         --map.y;
     }
 }
@@ -58,9 +58,9 @@ void map_north(unsigned char v)
 void map_east(unsigned char v)
 {
     map.xoffset -= v;
-    if (map.xoffset < -24)
+    if (map.xoffset < -24 * MAP_OFFSET_SCALE)
     {
-        map.xoffset = 24;
+        map.xoffset = 24 * MAP_OFFSET_SCALE;
         ++map.x;
     }
 }
@@ -68,15 +68,16 @@ void map_east(unsigned char v)
 void map_west(unsigned char v)
 {
     map.xoffset += v;
-    if (map.xoffset > 24)
+    if (map.xoffset > 24 * MAP_OFFSET_SCALE)
     {
-        map.xoffset = -24;
+        map.xoffset = -24 * MAP_OFFSET_SCALE;
         --map.x;
     }
 }
 
+#define         TERRAIN_OVERLAP       16
 
-void map_show()
+void map_calculate()
 {
     int row,col; // the map is 256 x 256
     int y3, yy;
@@ -90,7 +91,7 @@ void map_show()
     for(row=0; row<MAP_VISIBLE_ROWS; ++row)
     {
        y3 = (map.y + row)/32;
-       RAM_BANK = 10 + y3;  // macro in cx16.h sets the destination bank
+       RAM_BANK = MAP_RAM_BANK_START + y3;  // macro in cx16.h sets the destination bank
        yy = (map.y + row) % 32;
 
        for(col=0; col<MAP_VISIBLE_COLS; ++col)
@@ -102,8 +103,8 @@ void map_show()
            mapSprite.mode       = SPRITE_MODE_8BPP;
            mapSprite.layer      = SPRITE_LAYER_0;
            mapSprite.dimensions = SPRITE_64_BY_64;
-           mapSprite.x          = SPRITE_X_SCALE(map.xoffset + 129 + col * 48);
-           mapSprite.y          = SPRITE_Y_SCALE(map.yoffset + 31 + row * 48);
+           mapSprite.x          = SPRITE_X_SCALE(map.xoffset/MAP_OFFSET_SCALE + 129 + col * (64-TERRAIN_OVERLAP));
+           mapSprite.y          = SPRITE_Y_SCALE(map.yoffset/MAP_OFFSET_SCALE + 31  + row * (64-TERRAIN_OVERLAP));
 
            switch(land)
            {
@@ -156,4 +157,9 @@ void map_show()
            }
        }
     }
+}
+
+void map_show()
+{
+   //sprite_refresh();
 }

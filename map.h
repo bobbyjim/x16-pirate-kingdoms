@@ -18,6 +18,7 @@ void map_south(unsigned char v);
 void map_north(unsigned char v);
 void map_east(unsigned char v);
 void map_west(unsigned char v);
+void map_calculate();
 void map_show();
 
 #endif

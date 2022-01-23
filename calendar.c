@@ -1,76 +1,101 @@
 #include <stdio.h>
+#include <stddef.h>
+#include <time.h>
 
 #include "calendar.h"
 
-//
-// The calendar is 
-//    32 kins per winal (a month)
-//    16 winals per tun (a long year)
-//    32 tuns per katun (42 years)
-//    16 katuns per baktun (682 years)
-//    32 baktuns
-//
-// The calendar rolls over every 21,000 years or so.
-//
-
 typedef struct {
-    int hour:   8;
+    int min:    8;
+    int hour:   16;
     int kin:    5;
     int winal:  4;
     int tun:    5;
-    int katun:  4;
-    int baktun: 5;
+    int katun:  8;
 } LongCount;
 
 LongCount today;
 char todaysDate[20];
 
-char *winal[] = 
+char *tzolkin_name[] = 
 {
-    "nahakku",
-    "wendros chi",
-    "wendros bit",
-    "wendros taw",
-    "hashni",
-    "hewsreh chi",
-    "hewsreh bit",
-    "hewsreh taw",
-    "nahati",
-    "samreh chi",
-    "samreh bit",
-    "samreh taw",
-    "nakabash",
-    "kerpos chi",
-    "kerpos bit",
-    "kerpos taw"
+   "ha'     ",
+   "ik'     ",
+   "ak'ab   ",
+   "ohl     ",
+   "chikchan",
+   "cham    ",
+   "chij    ",
+   "lamat   ",
+   "muluk   ",
+   "oc      ",
+   "chuwen  ",
+   "eb'     ",
+   "b'en    ",
+   "hish    ",
+   "tz'ikin ",
+   "kib'    ",
+   "kab     ",
+   "etz'nab ",
+   "kawak   ",
+   "ajaw    "
 };
 
-void nextHour()
-{
-    // we can use the nature of bitfields
-    // to very very easily manipulate the calendar
+char *haab_name[] = {
+   "  pop",
+   "  wo'",
+   "  sip",
+   "sotz'",
+   "  sek",
+   "  xul",
+   "  yax",
+   "  mol",
+   "ch'en",
+   "  yax",
+   " sak'",
+   "  keh",
+   "  mak",
+   " k'an",
+   "muwan",
+   "  pax",
+   "'ayab",
+   "  k'u"
+};
 
-    if (today.katun == 0) ++today.baktun;
-    if (today.tun   == 0) ++today.katun;
-    if (today.winal == 0) ++today.tun;
-    if (today.kin   == 0) ++today.winal;
-    if (today.hour  == 0) ++today.kin;
-    ++today.hour;
-}
-
-unsigned char kin() { return today.kin; }
-unsigned char tun() { return today.tun; }
-unsigned char katun() { return today.katun; }
-unsigned char baktun() { return today.baktun; }
+time_t now;  // Unsigned Long
 
 char *theDate()
 {
-   sprintf(todaysDate, "%02d.%02d.%02d.%02d.%02d", 
-        today.kin,
-        today.winal,
-        today.tun,
-        today.katun,
-        today.baktun);
+   unsigned char kin, winal, katun, baktun;
+   time(&now);
+   kin   = (now/20) % 20;
+   winal = (now/400) % 20; 
+   katun = (now/8000) % 20;
+   baktun = (now/160000) % 20;
+
+   sprintf(todaysDate, "%02d.%02d.%02d.%02d", 
+      kin,
+      winal,
+      katun,
+      baktun);
+
+   return todaysDate;
+}
+
+char *thaHaab()
+{
+    unsigned char trecena, kin, haab;
+    time(&now);
+    now >>= 4;
+
+   trecena = now % 13;
+   kin     = now % 20;
+   haab    = (now/20) % 18;
+
+   sprintf(todaysDate, "%s %02d %s", 
+        haab_name[haab],
+        trecena+1,
+        tzolkin_name[kin]
+        );
 
    return todaysDate;
 }
