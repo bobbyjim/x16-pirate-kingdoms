@@ -4,7 +4,6 @@
 #include <conio.h>
 
 #include "sprite.h"
-#include "vpoke.h"
 #include "memory.h"
 
 // x and y are 15 bit uint's so we can toy with them just a bit.
