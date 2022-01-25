@@ -56,7 +56,8 @@ void sprite_define(uint8_t spritenum, SpriteDefinition *sprdef);
 void sprite_define_in_bank(uint8_t spritenum, SpriteDefinition *sprdef);
 void sprite_changeBlock(uint8_t spritenum, SpriteDefinition *sprdef);
 void sprite_pos(uint8_t spritenum, Position* pos);
-void sprite_flip(uint8_t spritenum, uint8_t flip);
+void sprite_horiz_flip(uint8_t spritenum);
+void sprite_horiz_unflip(uint8_t spritenum);
 
 void sprite_refresh();
 

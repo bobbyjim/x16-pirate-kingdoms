@@ -14,23 +14,15 @@ The C version is slowly catching up.
 
 ## Settlements
 
-* Nomad camps for mobility.
-* Ranches for supply.
-* Fortresses for protection.
-* Villages for supply and population.
-* Pueblos for supply and population.
-* Ziggurats for culture and protection.
+Each settlement has a basic type, and has features based on that type.
 
-## Fleet Types
+## Ship Types
 
-* Trader for supply and population.
-* Corsair for raiding.
-* Warship for protection.
-* Advanced trader for supply and population.
-* Advanced corsair for raiding.
-* Advanced warship for protection.
+Each ship has a basic type, and has features based on that type.
+Some are better at trade, others at moving people around.
 
 ## Land Types
+
    - ocean
    - desert
    - grass
@@ -39,10 +31,10 @@ The C version is slowly catching up.
    - mountain
 
 ## Event Cycles
+
    - abundance
    - drought
    - famine
    - monsoon
    - locust swarms
    - plague
-

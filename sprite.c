@@ -87,7 +87,7 @@ void sprite_pos(uint8_t spritenum, Position* pos)
    VERA.data0 ^= pos->flip;
 }
 
-void sprite_flip(uint8_t spritenum, uint8_t flip)
+void sprite_horiz_flip(uint8_t spritenum)
 {
    //
    //  Set Port 0 to point to sprite x,y registers
@@ -95,7 +95,19 @@ void sprite_flip(uint8_t spritenum, uint8_t flip)
    VERA.control = 0; // port 0
    VERA.address = SPRITE_REGISTERS(spritenum) + 6; // flip
    VERA.address_hi = 1;
-   VERA.data0 ^= (flip & 1);
+   //VERA.data0 ^= (flip & 1);
+   VERA.data0 |= 1;
+}
+
+void sprite_horiz_unflip(uint8_t spritenum)
+{
+   //
+   //  Set Port 0 to point to sprite x,y registers
+   //
+   VERA.control = 0; // port 0
+   VERA.address = SPRITE_REGISTERS(spritenum) + 6; // flip
+   VERA.address_hi = 1;
+   if (VERA.data0 & 1) VERA.data0--;
 }
 
 void sprite_changeBlock(uint8_t spritenum, SpriteDefinition *sprdef)
