@@ -23,37 +23,15 @@
 #define	LOAD_TO_MAIN_RAM	           0
 #define	LOAD_TO_VERA	              2  
 
-#define  SHIP_ADDR_PENTEKONTOR        0x4000
-#define  SHIP_ADDR_DRAKKAR            0x4400
-#define  SHIP_ADDR_TRIREME            0x4800
-#define  SHIP_ADDR_DROMON             0x4c00
-#define  SHIP_ADDR_TARTANE            0x5000
-#define  SHIP_ADDR_XEBEC              0x5400
-#define  SHIP_ADDR_GENOESE            0x5800
-
-uint16_t ships[] = {
-   SHIP_ADDR_PENTEKONTOR, 
-   SHIP_ADDR_DRAKKAR, 
-   SHIP_ADDR_TRIREME, 
-   SHIP_ADDR_DROMON,
-   SHIP_ADDR_TARTANE, 
-   SHIP_ADDR_XEBEC, 
-   SHIP_ADDR_GENOESE
-};
-
-#define  PEOPLE_ADDR_CAMP             0x6000
-#define  PEOPLE_ADDR_VILLAGE          0x6400
-#define  PEOPLE_ADDR_PUEBLO           0x6800
-#define  PEOPLE_ADDR_AZTEC            0x6c00
-#define  PEOPLE_ADDR_INCA             0x7000
-
-#define  LAND_ADDR_OCEAN              0x8000
-#define  LAND_ADDR_DESERT             0x9000
-#define  LAND_ADDR_SAVANNAH           0xa000
-#define  LAND_ADDR_FOREST             0xb000
-#define  LAND_ADDR_HILLS              0xc000
-// something is happening at 0xd000
-#define  LAND_ADDR_MOUNTAIN           0xe000
+#define  SHIP_ADDR_START              0x4000
+#define  SHIP_ADDR_DRAKKAR            0x4000
+#define  SHIP_ADDR_DROMON             0x4400
+#define  SHIP_ADDR_GENOESE            0x4800
+#define  SHIP_ADDR_PENTEKONTOR        0x4c00
+#define  SHIP_ADDR_SAMBUK             0x5000
+#define  SHIP_ADDR_TARTANE            0x5400
+#define  SHIP_ADDR_TRIREME            0x5800
+#define  SHIP_ADDR_XEBEC              0x5c00
 
 struct regs r;
 
@@ -75,29 +53,9 @@ void loadVera(char *fname, unsigned int address)
 
 void loadSpriteDataToVERA()
 {
-   // ships at 0x4000
-   loadVera("ships/pentekontor-32x32.bin", SHIP_ADDR_PENTEKONTOR);  // slow coastal
-   loadVera("ships/drakkar-32x32.bin",     SHIP_ADDR_DRAKKAR);      // fast coastal
-   loadVera("ships/trireme-32x32.bin",     SHIP_ADDR_TRIREME);      // 
-   loadVera("ships/dromon-32x32.bin",      SHIP_ADDR_DROMON);       // tough
-   loadVera("ships/tartane-32x32.bin",     SHIP_ADDR_TARTANE);      // maneuverable
-   loadVera("ships/xebec-32x32.bin",       SHIP_ADDR_XEBEC);        // seaworthy
-   loadVera("ships/genoese-32x32.bin",     SHIP_ADDR_GENOESE);      // fast
-
-   // settlements at 0x6000
-   loadVera("people/camp-32x32-bw.bin",     PEOPLE_ADDR_CAMP);
-   loadVera("people/village-32x32-bw.bin",  PEOPLE_ADDR_VILLAGE);
-   loadVera("people/pueblo-32x32-bw.bin",   PEOPLE_ADDR_PUEBLO);
-   loadVera("people/aztec-32x32-bw.bin",    PEOPLE_ADDR_AZTEC);
-   loadVera("people/inca-32x32-bw.bin",     PEOPLE_ADDR_INCA);
-
-   // terrain at 0x8000
-   loadVera("terrain/ocean.bin",             LAND_ADDR_OCEAN);
-   loadVera("terrain/island-desert-x.bin",   LAND_ADDR_DESERT);
-   loadVera("terrain/island-savannah-x.bin", LAND_ADDR_SAVANNAH);
-   loadVera("terrain/island-forest-x.bin",   LAND_ADDR_FOREST);
-   loadVera("terrain/island-hills-x.bin",    LAND_ADDR_HILLS);
-   loadVera("terrain/island-mountain-x.bin", LAND_ADDR_MOUNTAIN);
+   loadVera("ships-32x32.bin", SHIP_ADDR_START);
+   loadVera("people-32x32.bin", PEOPLE_ADDR_START);
+   loadVera("terrain-64x64.bin", LAND_ADDR_START);
 }
 
 SpriteDefinition sprdef;
@@ -107,7 +65,7 @@ int              dx, dy, x, y;
 void initSprite()
 {
    sprdef.mode            = SPRITE_MODE_8BPP;
-   sprdef.block           = SHIP_ADDR_TARTANE; // SHIP_ADDR_TARTANE;
+   sprdef.block           = SHIP_ADDR_SAMBUK; // SHIP_ADDR_TARTANE;
    sprdef.collision_mask  = 0x0000;
    sprdef.layer           = SPRITE_LAYER_0;
    sprdef.dimensions      = SPRITE_32_BY_32;
@@ -123,14 +81,6 @@ void initSprite()
 
 byte ship_max_velocity = 12;
 byte ship_acceleration = 3;
-byte wind_vector       = 0;
-
-void checkWind()
-{
-   return; // nop
-   //if ((rand() % 100) == 0)
-   //   wind_vector = rand() % 256;
-}
 
 void move()
 {
@@ -152,12 +102,14 @@ void move()
          case 0x1d: // right
          case 'l':
          case 'd': if (dx <  ship_max_velocity) dx += ship_acceleration; break;
-         // case 'x':
-         //    if (dx > 0) --dx;
-         //    else if (dx < 0) ++dx;
-         //    if (dy > 0) --dy;
-         //    else if (dy < 0) ++dy;
-         //    break;
+
+         case 'm': // hey map!
+            vera_sprites_enable(0);
+            map_region();
+            vera_sprites_enable(1);
+            map_frame_draw();
+            menus_init();
+            break;
       }
 
    if (dy < 0) map_north(-dy);
@@ -174,22 +126,7 @@ void move()
       sprite_horiz_unflip(PLAYER_SPRITE);
    }
 
-   //
-   //  North-South wind is bits 0 and 1 (0x03).
-   //  East-West wind is bits 2 and 3 (0x0c).
-   //
-   //    00 : north or east
-   //    01 : no
-   //    10 : no
-   //    11 : south or west
-   //
-   // if ((wind_vector & 0x03) == 0) map_north(1);
-   // if ((wind_vector & 0x03) == 3) map_south(1);
-   // if ((wind_vector & 0x0c) == 0) map_west(1);
-   // if ((wind_vector & 0x0c) == 12) map_east(1);
-
    map_calculate();
-   map_show();
 }
 
 void main()
@@ -204,20 +141,21 @@ void main()
 
    done = 0;
 
-   bgcolor(0); // lets background layer in
+   bgcolor(COLOR_BLACK); 
    clrscr();
    loadMapToBankedRAM();
    loadSpriteDataToVERA();
  
    vera_sprites_enable(1); // cx16.h 
    initSprite();
+
    map_init();
+   map_frame_draw();
    menus_init();
-         
+
    while(!done)
    {
-      cputsxy(19,50,theDate());
+      cputsxy(20,52,theDate());
       move();
-      checkWind();
    }
 }
