@@ -31,10 +31,30 @@ void sprite_refresh()
    VERA.address_hi = VERA_INC_1 + 1; // from cx16.h
 
    //
-   //  Copy over 1K from the bank to VERA
+   //  Set up R0, R1, and R2 for the MEMORY_COPY kernal routine.
    //
-   while(sourceAddress < ((unsigned char *)0xa400))
-      VERA.data0 = *sourceAddress++;
+	asm("stz   $02");   
+	asm("lda  #$a0");  
+	asm("sta   $03"); 	// R0 = #$a000
+	asm("lda  #$23"); 
+	asm("sta   $04");   
+	asm("lda  #$9f");    
+	asm("sta   $05"); 	// R1 = #$9f23
+	asm("stz   $06"); 
+	asm("lda  #$04"); 
+	asm("sta   $07"); 	// R2 = #$400 = 1K
+
+   //
+   //  Call tiny assembly program in SPRITE_RAM_BANK.
+   //  It only has two jobs, in order:
+   //   1. wait for vblank (WAI)
+   //   2. jmp MEMORY_COPY.
+   //
+   //asm("jsr $bff8");
+
+   // old C:
+   //while(sourceAddress < ((unsigned char *)0xa400))
+   //   VERA.data0 = *sourceAddress++;
 }
 
 void sprite_define(uint8_t spritenum, SpriteDefinition *sprdef)

@@ -1,18 +1,31 @@
 
-
 #include <conio.h>
 
 #include "menus.h"
 
-void menus_init()
+char* menu1[3] = {
+    "item one",
+    "item two",
+    "item three"
+};
+
+char* menu2[3] = {
+    "item a",
+    "item b",
+    "item c"
+};
+
+void menus_show()
 {
-    cputsxy(1,4,"item one");
-    cputsxy(1,5,"item two");
-    cputsxy(1,6,"item three");
+    unsigned char x;
+    for(x=0; x<3; ++x)
+    {
+        cputsxy(1,4+x,menu1[x]);
+        cputsxy(70,4+x,menu2[x]);
+    }
+}
 
+void menus_check()
+{
 
-    cputsxy(70,4,"item a");
-    cputsxy(70,5,"item b");
-    cputsxy(70,6,"item c");
-    
 }

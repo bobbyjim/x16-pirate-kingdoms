@@ -29,18 +29,21 @@ use strict;
 
 my $infile = shift || die "SYNOPSIS: $0 pixobj\n";
 
-open my $in, '<', $infile;
+open my $in, '<', $infile || die "Error: cannot open file [$infile]\n";
 my $header = <$in>;
 my @data = <$in>;
 close $in;
 
 chomp @data;
-my ($name, $bpp, $width, $height) = $header =~ /=(\w+) (4bpp|8bpp)\s+(\d\d?)x(\d\d?)/;
-die "Cannot read header\n" unless $bpp && $width && $height;
+my ($name, $bpp, $width, $height) = $header =~ /=(\w+)\s+(4bpp|8bpp)\s+(\d\d?\d?)x(\d\d?\d?)/i;
+
+die "Header error: bpp seems wrong ($bpp)\n" unless $bpp;
+die "Header error: width seems wrong ($width)\n" unless $width;
+die "Header error: height seems wrong ($height)\n" unless $height;
 
 my $dimensions = $3 . 'x' . $4;
 
-my $outfile = sprintf("%s_%s_%s.bin", $bpp, $name, $dimensions);
+my $outfile = sprintf("%s_%s_%s.BIN", uc $bpp, uc $name, uc $dimensions);
 print "===> $outfile <=== $bpp, $width x $height\n";
 
 open my $out, '>', $outfile;

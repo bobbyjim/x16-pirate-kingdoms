@@ -2,8 +2,7 @@
 #define _CALENDAR_H_
 
 void nextHour();
-
-char* theDate();
+void updateDate();
 
 #endif
 

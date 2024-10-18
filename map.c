@@ -50,6 +50,8 @@ void map_south(unsigned char v)
     {
         map.yoffset = HALF_VISIBLE_TILE_WIDTH * MAP_OFFSET_SCALE;
         ++map.y;
+        gotoxy(20,7);
+        cprintf("%2x,%2x", map.x, map.y);
     }
 }
 
@@ -60,6 +62,8 @@ void map_north(unsigned char v)
     {
         map.yoffset = -HALF_VISIBLE_TILE_WIDTH * MAP_OFFSET_SCALE;
         --map.y;
+        gotoxy(20,7);
+        cprintf("%2x,%2x", map.x, map.y);
     }
 }
 
@@ -70,6 +74,8 @@ void map_east(unsigned char v)
     {
         map.xoffset = HALF_VISIBLE_TILE_WIDTH * MAP_OFFSET_SCALE;
         ++map.x;
+        gotoxy(20,7);
+        cprintf("%2x,%2x", map.x, map.y);
     }
 }
 
@@ -80,7 +86,45 @@ void map_west(unsigned char v)
     {
         map.xoffset = -HALF_VISIBLE_TILE_WIDTH * MAP_OFFSET_SCALE;
         --map.x;
+        gotoxy(20,7);
+        cprintf("%2x,%2x", map.x, map.y);
     }
+}
+
+unsigned char get_map(unsigned char x, unsigned char y)
+{
+    byte y3 = y/32;
+    byte yy = y%32;
+    RAM_BANK = MAP_RAM_BANK_START + y3;
+    return PEEK(0xa000 + yy * 256 + x);
+}
+
+unsigned char map_has_land_north()
+{
+    byte land = get_map(map.x+3, map.y-2);
+    land &= 15;
+    return land;
+}
+
+unsigned char map_has_land_south()
+{
+    byte land = get_map(map.x+3, map.y+4);
+    land &= 15;
+    return land;
+}
+
+unsigned char map_has_land_east()
+{
+    byte land = get_map(map.x+4, map.y+3);
+    land &= 15;
+    return land;
+}
+
+unsigned char map_has_land_west()
+{
+    byte land = get_map(map.x-2, map.y+3);
+    land &= 15;
+    return land;
 }
 
 void map_calculate()
@@ -90,9 +134,6 @@ void map_calculate()
     byte land;
     byte settlement;
     byte spriteNum = 2;
-
-    gotoxy(20,7);
-    cprintf("%2x,%2x", map.x, map.y);
 
     for(row=0; row<MAP_VISIBLE_ROWS; ++row)
     {
@@ -143,31 +184,29 @@ void map_calculate()
 
            sprite_define(spriteNum, &mapSprite);
 
-        //    mapSprite.dimensions = SPRITE_32_BY_32;
-
-        //    switch(settlement)
-        //    {
-        //        case 0: mapSprite.layer = SPRITE_LAYER_BACKGROUND; break;
-               
-        //        case 1:
-        //        case 2: mapSprite.block = PEOPLE_ADDR_CAMP; break;
-        //        case 3:
-        //        case 4:
-        //        case 5: mapSprite.block = PEOPLE_ADDR_VILLAGE; break;
-        //        case 6:
-        //        case 7:
-        //        case 8: mapSprite.block = PEOPLE_ADDR_PUEBLO; break;
-        //        case 9:
-        //        case 10:
-        //        case 11: mapSprite.block = PEOPLE_ADDR_AZTEC; break;
-        //        case 12:
-        //        case 13:
-        //        case 14:
-        //        case 15: mapSprite.block = PEOPLE_ADDR_INCA; break;
-        //    }
-
-        //    if (settlement > 0)
-        //       sprite_define(spriteNum, &mapSprite);
+            mapSprite.dimensions = SPRITE_32_BY_32;
+           switch(settlement)
+            {
+                case 0: mapSprite.layer = SPRITE_LAYER_BACKGROUND; break;
+             
+                case 1:
+                case 2: mapSprite.block = PEOPLE_ADDR_CAMP; break;
+                case 3:
+                case 4:
+                case 5: mapSprite.block = PEOPLE_ADDR_VILLAGE; break;
+                case 6:
+                case 7:
+                case 8: mapSprite.block = PEOPLE_ADDR_PUEBLO; break;
+                case 9:
+                case 10:
+                case 11: mapSprite.block = PEOPLE_ADDR_AZTEC; break;
+                case 12:
+                case 13:
+                case 14:
+                case 15: mapSprite.block = PEOPLE_ADDR_INCA; break;
+            }
+           if (settlement > 0)
+               sprite_define(spriteNum, &mapSprite);
 
            ++spriteNum;
        }

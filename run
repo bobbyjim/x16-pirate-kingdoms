@@ -1,1 +1,3 @@
-~/commanderx16/x16emu_mac-r38/x16emu -prg PK -run
+../x16 -scale 2 -bas BOOT.BAS -run
+#../x16 -scale 2 -prg PK -run
+# ~/commanderx16/x16emu_mac-r41/x16emu -prg PK -run

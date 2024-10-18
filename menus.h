@@ -2,6 +2,8 @@
 #define _MENUS_H_
 
 
-void menus_init();
+void menus_show();
+void menus_check();
 
+unsigned char map_has_land_north();
 #endif

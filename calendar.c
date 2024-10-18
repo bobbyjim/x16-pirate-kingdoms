@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <time.h>
+#include <conio.h>
 
 #include "calendar.h"
 
@@ -63,11 +64,20 @@ char *haab_name[] = {
 
 time_t now;  // Unsigned Long
 
-char *theDate()
+unsigned char kin;
+
+void updateDate()
 {
-   unsigned char kin, winal, katun, baktun;
+   unsigned char newKin, winal, katun, baktun;
    time(&now);
-   kin   = (now/20) % 20;
+   newKin   = (now/20) % 20;
+
+   if (newKin == kin) return; // nothing to do
+
+   //
+   // date has changed
+   //
+   kin = newKin;
    winal = (now/400) % 20; 
    katun = (now/8000) % 20;
    baktun = (now/160000) % 20;
@@ -78,7 +88,7 @@ char *theDate()
       katun,
       baktun);
 
-   return todaysDate;
+   cputsxy(20,52,todaysDate);
 }
 
 char *thaHaab()

@@ -1,8 +1,8 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
-#define MAP_VISIBLE_ROWS                7
-#define MAP_VISIBLE_COLS                6
+#define  MAP_VISIBLE_ROWS                7
+#define  MAP_VISIBLE_COLS                6
 
 #define  PEOPLE_ADDR_START            0x6000
 #define  PEOPLE_ADDR_CAMP             0x6000
@@ -39,5 +39,10 @@ void map_east(unsigned char v);
 void map_west(unsigned char v);
 void map_calculate();
 void map_region();
+
+unsigned char map_has_land_north();
+unsigned char map_has_land_south();
+unsigned char map_has_land_east();
+unsigned char map_has_land_west();
 
 #endif
