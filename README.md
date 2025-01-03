@@ -1,49 +1,51 @@
 # x16-pirate-kingdoms
 
-# Foundational Features
+# Features
+
+## Core
 These establish the core simulator.
 
-## 1. Core Movement & Land Interaction (4K)
+* 1. Core Movement & Land Interaction (4K)
 
 The ship respects terrain, docks at valid locations, and unloads population for settlement creation.
 
-## 2. Settlement Mechanics (4K)
+* 2. Settlement Mechanics (4K)
 
 Enable basic settlement creation and functionality:
 * Population and resource management.
 * Initial implementation of the "5 Characteristics" framework (with capped structures).
 
-## 3. Map Dynamics & Events (4K)
+* 3. Map Dynamics & Events (4K)
 
 Introduce weather, natural disasters, and environmental events that affect resources and settlements.
 This adds unpredictability and depth to the living world.
 
-# Interaction System
+## Interaction System
 
-## 4. Trade & Forager Systems (4K)
+* 4. Trade & Forager Systems (4K)
 
 Virtual foragers explore and connect settlements; merchant traffic grows from trade imbalances.
 
-## 5. Dynamic AI Settlements (4K)
+* 5. Dynamic AI Settlements (4K)
 
 Autonomous AI colonies create natural competition and alliances.
 AI settlements evolve similarly to player settlements, ensuring the world feels alive.
 
-# Living World Enhancements
+## Living World Enhancements
 These parts add an amotional and narrative layer, and provide a mechanic that appeals to competitive players.
 
-## 6. Historical Legacy System (4K)
+* 6. Historical Legacy System (4K)
 
 Monuments, ruins, and logogram inscriptions create a persistent sense of history.
 Players can encounter remnants of past civilizations, adding depth and continuity.
 
-## 7. Combat and Conflict (4K)
+* 7. Combat and Conflict (4K)
 
 Introduce limited combat mechanics to handle conflicts between settlements.
 Diplomacy and civil wars naturally emerge as resources dwindle or rivalries develop.
 
 
-## A living world simulator.
+# A living world simulator.
 * Settlements grow, interact, and collapse without player intervention.
 * Virtual agents (foragers, merchants, pirates, etc.) follow rules that mimic real-world behaviors.
 * Environmental factors like weather, disasters, and resource availability dynamically influence the simulation.
