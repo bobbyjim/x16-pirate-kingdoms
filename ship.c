@@ -17,14 +17,14 @@
 // G/S       Galley Sailboat
 
 ShipData ships[8] = { //      addr      speed       accel     hull      people     goods      ballista    GkFire 
-	{ "drakkar",     "lwg",   0x4000,     14,         3,        24,        30,        10,         0,         0 },  
-	{ "dromon",      "hwg",   0x4400,      8,         2,        32,       150,        30,        10,        10 },  
-	{ "genoese",     "lwg",   0x4800,     16,         4,        16,        50,        25,         2,         0 },  
-	{ "pentekontor", "mtg",   0x4c00,     10,         2,        24,        50,        50,         2,         0 },  
-	{ "sambuk",      "lts",   0x5000,     16,         4,        16,        30,        25,         0,         0 },  
-	{ "tartane",     "lts",   0x5400,     14,         4,        16,        16,        25,         0,         0 },  
-	{ "trireme",     "mgg",   0x5800,     10,         2,        24,       200,        20,         5,        10 },  
-	{ "xebec",       "mcs",   0x5c00,     12,         3,        24,        16,        20,         1,         0 },
+	{ "dromon",      "hwg",   0x4400,      5,         1,        32,       150,        40,        10,        10 },  
+	{ "pentekontor", "mtg",   0x4c00,      6,         1,        24,        50,        60,         2,         0 },  
+	{ "trireme",     "mgg",   0x5800,      7,         1,        24,       200,        20,         5,        10 },  
+	{ "drakkar",     "lwg",   0x4000,      8,         2,        24,        30,        10,         0,         0 },  
+	{ "xebec",       "mcs",   0x5c00,      9,         2,        24,        16,        20,         1,         0 },
+	{ "tartane",     "lts",   0x5400,     10,         2,        16,        16,        25,         0,         0 },  
+	{ "sambuk",      "lts",   0x5000,     11,         3,        16,        30,        25,         0,         0 },  
+	{ "genoese",     "lwg",   0x4800,     12,         4,        20,        50,        25,         2,         0 },  
 };
 
 ShipData* getShipData( unsigned char index )

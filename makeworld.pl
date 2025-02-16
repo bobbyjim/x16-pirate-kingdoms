@@ -24,8 +24,8 @@ for (1..5 * $mu)
    }
 }
 
-saveTerrain();
-# showTerrain();
+# saveTerrain(); # to MAP.BIN
+showTerrain();
 
 sub saveTerrain
 {
@@ -53,14 +53,15 @@ sub showTerrain
 {
    for my $r (0..$rows-1)
    {
-      print "DATA \"";
+      #print "DATA \"";
       for my $c (0..$cols-1)
       {
          $map[$r][$c] = ' ' unless defined $map[$r][$c];
          $map[$r][$c] = 9 if $map[$r][$c] > 9;
          print $map[$r][$c];
       }
-      print "\"\n";
+      #print "\"\n";
+      print "\n";
    }
    print "\n\n";
 }
