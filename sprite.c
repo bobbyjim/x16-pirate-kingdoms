@@ -50,7 +50,7 @@ void sprite_refresh()
    //   1. wait for vblank (WAI)
    //   2. jmp MEMORY_COPY.
    //
-   //asm("jsr $bff8");
+   asm("jsr $bff8");
 
    // old C:
    //while(sourceAddress < ((unsigned char *)0xa400))

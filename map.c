@@ -129,29 +129,32 @@ unsigned char map_has_land_west()
 
 void map_calculate()
 {
-    byte row,col; // the map is 256 x 256
-    byte y3, yy;
+    byte row,col;
     byte land;
     byte settlement;
-    byte spriteNum = 2;
-
+    byte terrainSprite = 2;
+    byte settlementSprite = 50;  // settlements start at sprite 50
+    byte y3, yy;
+    
     for(row=0; row<MAP_VISIBLE_ROWS; ++row)
     {
-       y3 = (map.y + row)/32; 
-       RAM_BANK = MAP_RAM_BANK_START + y3;  // macro in cx16.h sets the destination bank
-       yy = (map.y + row) % 32; 
-
+       y3 = (map.y + row)/32;
+       RAM_BANK = MAP_RAM_BANK_START + y3;
+       yy = (map.y + row) % 32;
+       
        for(col=0; col<MAP_VISIBLE_COLS; ++col)
        {
            land = PEEK(0xa000 + yy * 256 + col + map.x);
            settlement = (land >>4);
            land &= 15;
            
-           mapSprite.mode       = SPRITE_MODE_8BPP;
-           mapSprite.layer      = SPRITE_LAYER_0;
-           mapSprite.dimensions = SPRITE_64_BY_64;
-           mapSprite.x          = SPRITE_X_SCALE(map.xoffset/MAP_OFFSET_SCALE + 128 + col * (64-TERRAIN_OVERLAP));
-           mapSprite.y          = SPRITE_Y_SCALE(map.yoffset/MAP_OFFSET_SCALE + 24  + row * (64-TERRAIN_OVERLAP));
+           // Draw terrain sprite (64x64)
+           mapSprite.mode           = SPRITE_MODE_8BPP;
+           mapSprite.layer          = SPRITE_LAYER_0;
+           mapSprite.dimensions     = SPRITE_64_BY_64;
+           mapSprite.palette_offset = 0;
+           mapSprite.x              = SPRITE_X_SCALE(map.xoffset/MAP_OFFSET_SCALE + 128 + col * (64-TERRAIN_OVERLAP));
+           mapSprite.y              = SPRITE_Y_SCALE(map.yoffset/MAP_OFFSET_SCALE + 24  + row * (64-TERRAIN_OVERLAP));
 
            switch(land)
            {
@@ -182,33 +185,37 @@ void map_calculate()
                     // mapSprite.layer = SPRITE_DISABLED; break;  // don't draw the sea
            }
 
-           sprite_define(spriteNum, &mapSprite);
+           sprite_define(terrainSprite, &mapSprite);
+           ++terrainSprite;
 
-            mapSprite.dimensions = SPRITE_32_BY_32;
-           switch(settlement)
-            {
-                case 0: mapSprite.layer = SPRITE_LAYER_BACKGROUND; break;
-             
-                case 1:
-                case 2: mapSprite.block = PEOPLE_ADDR_CAMP; break;
-                case 3:
-                case 4:
-                case 5: mapSprite.block = PEOPLE_ADDR_VILLAGE; break;
-                case 6:
-                case 7:
-                case 8: mapSprite.block = PEOPLE_ADDR_PUEBLO; break;
-                case 9:
-                case 10:
-                case 11: mapSprite.block = PEOPLE_ADDR_AZTEC; break;
-                case 12:
-                case 13:
-                case 14:
-                case 15: mapSprite.block = PEOPLE_ADDR_INCA; break;
-            }
+           // Draw settlement sprite (32x32) if present
            if (settlement > 0)
-               sprite_define(spriteNum, &mapSprite);
-
-           ++spriteNum;
+           {
+               mapSprite.dimensions = SPRITE_32_BY_32;
+               mapSprite.layer      = SPRITE_LAYER_1;  // above terrain
+               
+               switch(settlement)
+               {
+                   case 1:
+                   case 2: mapSprite.block = PEOPLE_ADDR_CAMP; break;
+                   case 3:
+                   case 4:
+                   case 5: mapSprite.block = PEOPLE_ADDR_VILLAGE; break;
+                   case 6:
+                   case 7:
+                   case 8: mapSprite.block = PEOPLE_ADDR_PUEBLO; break;
+                   case 9:
+                   case 10:
+                   case 11: mapSprite.block = PEOPLE_ADDR_AZTEC; break;
+                   case 12:
+                   case 13:
+                   case 14:
+                   case 15: mapSprite.block = PEOPLE_ADDR_INCA; break;
+               }
+               
+               sprite_define(settlementSprite, &mapSprite);
+               ++settlementSprite;
+           }
        }
     }
 }
@@ -227,16 +234,17 @@ byte  landcolor[] = {
 
 void map_region()
 {
-    byte row, r, col, c, bank, yy, land;
+    byte row, r, col, c, land, bank, yy;
     clrscr();
 
     revers(1);
+    
     for(row=0; row<58; ++row)
     {
         r = map.y + row - 25;
-        bank = r/32; 
-        RAM_BANK = MAP_RAM_BANK_START + bank;  // macro in cx16.h sets the destination bank
-        yy = r % 32; 
+        bank = r/32;
+        RAM_BANK = MAP_RAM_BANK_START + bank;
+        yy = r % 32;
 
         for(col=0; col<58; ++col)
         {

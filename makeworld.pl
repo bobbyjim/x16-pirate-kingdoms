@@ -1,8 +1,8 @@
 
 my @map;
 
-my $rows = shift || 90;
-my $cols = shift || 70;
+my $rows = shift || 256;
+my $cols = shift || 256;
 
 my $mu = 2;
 for (1..5 * $mu)
@@ -24,8 +24,8 @@ for (1..5 * $mu)
    }
 }
 
-# saveTerrain(); # to MAP.BIN
-showTerrain();
+saveTerrain(); # to MAP.BIN
+#showTerrain();
 
 sub saveTerrain
 {
@@ -40,7 +40,15 @@ sub saveTerrain
          #$map[$r][$c] &= 0x0f;
          my $foo = $map[$r][$c] & 0x0f;
 
-         $map[$r][$c] = int(rand(16))*16 + $foo if $map[$r][$c] > 15;
+         # Only place settlements on land (terrain value >= 2), and cap terrain at 15
+         if ($map[$r][$c] > 15) {
+            $foo = 15 if $foo > 15;  # cap terrain at 15
+            if ($foo >= 2) {  # only on land
+               $map[$r][$c] = int(rand(16))*16 + $foo;
+            } else {
+               $map[$r][$c] = $foo;  # ocean, no settlement
+            }
+         }
          print $out pack 'C', $map[$r][$c];
 
          print int($map[$r][$c]/16) . " " . ($map[$r][$c] & 15) . "\n" if $map[$r][$c] > 15;

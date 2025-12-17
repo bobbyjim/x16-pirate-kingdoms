@@ -114,6 +114,15 @@ void loadVera(char *fname, unsigned int address)
    cbm_k_load(LOAD_TO_VERA, address);
 }
 
+void loadSpriteRefresh()
+{
+   setBank(SPRITE_RAM_BANK);
+
+   cbm_k_setnam("SPRFRESH.PRG");
+   cbm_k_setlfs(0,8,0);
+   cbm_k_load(LOAD_TO_MAIN_RAM, 0xbff8);
+}
+
 void loadSpriteDataToVERA()
 {
    loadVera("ships-32x32.bin", SHIP_ADDR_START);
@@ -260,6 +269,7 @@ void main()
    bgcolor(COLOR_BLACK); 
    clrscr();
    loadMapToBankedRAM();
+   loadSpriteRefresh();
    loadSpriteDataToVERA();
 
    shipIndex = rand() % 8;
@@ -270,6 +280,7 @@ void main()
 
    map_init();
    map_frame_draw();
+   map_calculate();
    menus_show();
    gotoxy(20,52);
    cprintf("%-11s %2d/%1d %2d %3d/%-3d %2d/%-2d",
@@ -285,6 +296,7 @@ void main()
 
    while(1)
    {
+      waitvsync();
       updateDate();
       move();
    }

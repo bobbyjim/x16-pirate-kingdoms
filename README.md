@@ -35,10 +35,20 @@ The C version is slowly catching up.
 
 ## Inspirations
 
-* Seven Cities of Gold: map and settlements
+* Seven Cities of Gold: map and settlements, exploration, and simple options
 * AD 1602: ship types, settlement locations and support
 * Building castles on the beach... when the tide's rolling in
-  
+* Dwarven Fortress: emergent storytelling, legacy through ruins and monuments
+
+Really, I think Seven Cities of Gold is the core inspiration here. The sense of exploration, discovery, and building something new in an unknown land is captivating. The simplicity of its mechanics allows players to focus on the experience rather than getting bogged down in complex systems.
+
+## Anti-Inspirations (Things to Avoid)
+
+* Sid Meier's Civilization: too fiddly and complex
+* Age of Empires: too much focus on combat and conquest
+* Micromanagement games: too many menus and options
+* Dwarven Fortress: micromanagement and complexity
+
 ## Land Types
 
    - ocean

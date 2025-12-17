@@ -4,6 +4,9 @@
 #define  MAP_VISIBLE_ROWS                7
 #define  MAP_VISIBLE_COLS                6
 
+#define  MAP_WIDTH                       256
+#define  MAP_HEIGHT                      256
+
 #define  PEOPLE_ADDR_START            0x6000
 #define  PEOPLE_ADDR_CAMP             0x6000
 #define  PEOPLE_ADDR_CAMP_2           0x6200
