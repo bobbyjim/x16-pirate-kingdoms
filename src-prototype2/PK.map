@@ -1,0 +1,1354 @@
+Modules list:
+-------------
+main.o:
+    CODE              Offs=000000  Size=00065E  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=0001B9  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000016  Align=00001  Fill=0000
+ship.o:
+    CODE              Offs=00065E  Size=000019  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=0000D8  Align=00001  Fill=0000
+calendar_engine.o:
+    CODE              Offs=000677  Size=000250  Align=00001  Fill=0000
+    RODATA            Offs=0001B9  Size=000122  Align=00001  Fill=0000
+    BSS               Offs=000016  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=0000D8  Size=00004C  Align=00001  Fill=0000
+map_engine.o:
+    CODE              Offs=0008C7  Size=0003B0  Align=00001  Fill=0000
+    BSS               Offs=000022  Size=000306  Align=00001  Fill=0000
+    DATA              Offs=000124  Size=000001  Align=00001  Fill=0000
+sprite.o:
+    CODE              Offs=000C77  Size=0003CB  Align=00001  Fill=0000
+calendar.o:
+    CODE              Offs=001042  Size=00004F  Align=00001  Fill=0000
+    RODATA            Offs=0002DB  Size=000014  Align=00001  Fill=0000
+    BSS               Offs=000328  Size=000014  Align=00001  Fill=0000
+map_display.o:
+    CODE              Offs=001091  Size=0003D0  Align=00001  Fill=0000
+    RODATA            Offs=0002EF  Size=000051  Align=00001  Fill=0000
+    BSS               Offs=00033C  Size=00000B  Align=00001  Fill=0000
+    DATA              Offs=000125  Size=00000E  Align=00001  Fill=0000
+ADSR.o:
+    CODE              Offs=001461  Size=0001D0  Align=00001  Fill=0000
+    RODATA            Offs=000340  Size=00000A  Align=00001  Fill=0000
+adsr1.o:
+    CODE              Offs=001631  Size=0001E4  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_cursor.o):
+    BSS               Offs=000347  Size=000001  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_directerrno.o):
+    CODE              Offs=001815  Size=000009  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_hextab.o):
+    RODATA            Offs=00034A  Size=000010  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_longminstr.o):
+    RODATA            Offs=00035A  Size=00000C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_oserror.o):
+    BSS               Offs=000348  Size=000001  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_printf.o):
+    CODE              Offs=00181E  Size=0003A1  Align=00001  Fill=0000
+    BSS               Offs=000349  Size=00002B  Align=00001  Fill=0000
+    DATA              Offs=000133  Size=000003  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_seterrno.o):
+    CODE              Offs=001BBF  Size=000009  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(_sys.o):
+    CODE              Offs=001BC8  Size=000044  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(add.o):
+    CODE              Offs=001C0C  Size=000018  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(addysp.o):
+    CODE              Offs=001C24  Size=00000E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(aslax1.o):
+    CODE              Offs=001C32  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(aslax2.o):
+    CODE              Offs=001C3A  Size=00000B  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(aslax3.o):
+    CODE              Offs=001C45  Size=00000E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(aslax4.o):
+    CODE              Offs=001C53  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(asrax1.o):
+    CODE              Offs=001C64  Size=00000A  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(asrax4.o):
+    CODE              Offs=001C6E  Size=000019  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(axlong.o):
+    CODE              Offs=001C87  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(c_load.o):
+    CODE              Offs=001C94  Size=00001D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(c_setlfs.o):
+    CODE              Offs=001CB1  Size=00000E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(c_setnam.o):
+    CODE              Offs=001CBF  Size=000013  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(callmain.o):
+    CODE              Offs=001CD2  Size=000017  Align=00001  Fill=0000
+    DATA              Offs=000136  Size=000004  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(cgetc.o):
+    CODE              Offs=001CE9  Size=000067  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(clrscr.o):
+    CODE              Offs=001D50  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(color.o):
+    CODE              Offs=001D61  Size=00002A  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(condes.o):
+    CODE              Offs=001D8B  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=00013A  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(cprintf.o):
+    CODE              Offs=001D97  Size=00002A  Align=00001  Fill=0000
+    BSS               Offs=000374  Size=000001  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(cputc.o):
+    CODE              Offs=001DC1  Size=000062  Align=00001  Fill=0000
+    RODATA            Offs=000366  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(cputs.o):
+    CODE              Offs=001E23  Size=00001D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(crt0.o):
+    STARTUP           Offs=000000  Size=000021  Align=00001  Fill=0000
+    ONCE              Offs=00000C  Size=00001B  Align=00001  Fill=0000
+    INIT              Offs=000000  Size=000002  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ctype.o):
+    RODATA            Offs=00036E  Size=00008B  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ctypemask.o):
+    CODE              Offs=001E40  Size=00001E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp1.o):
+    CODE              Offs=001E5E  Size=000009  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp2.o):
+    CODE              Offs=001E67  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp3.o):
+    CODE              Offs=001E74  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp4.o):
+    CODE              Offs=001E81  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp6.o):
+    CODE              Offs=001E8E  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(decsp7.o):
+    CODE              Offs=001E9B  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(div.o):
+    CODE              Offs=001EA8  Size=000015  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(divt.o):
+    CODE              Offs=001EBD  Size=000015  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(errno.o):
+    BSS               Offs=000375  Size=000002  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(exehdr.o):
+    EXEHDR            Offs=000000  Size=00000C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(gettime.o):
+    CODE              Offs=001ED2  Size=00004C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(gotoxy.o):
+    CODE              Offs=001F1E  Size=00000F  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(icmp.o):
+    CODE              Offs=001F2D  Size=00002E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incax2.o):
+    CODE              Offs=001F5B  Size=000007  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incax3.o):
+    CODE              Offs=001F62  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incax5.o):
+    CODE              Offs=001F67  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incax6.o):
+    CODE              Offs=001F6C  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incax7.o):
+    CODE              Offs=001F71  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incaxy.o):
+    CODE              Offs=001F76  Size=00000B  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp1.o):
+    CODE              Offs=001F81  Size=000007  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp2.o):
+    CODE              Offs=001F88  Size=000015  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp3.o):
+    CODE              Offs=001F9D  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp4.o):
+    CODE              Offs=001FA2  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp5.o):
+    CODE              Offs=001FA7  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp6.o):
+    CODE              Offs=001FAC  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp7.o):
+    CODE              Offs=001FB1  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(incsp8.o):
+    CODE              Offs=001FB6  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(jmpvec.o):
+    DATA              Offs=00015F  Size=000003  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(kbhit.o):
+    CODE              Offs=001FBB  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(kernal.o):
+/Volumes/Zort/git/cc65/lib/cx16.lib(ladd.o):
+    CODE              Offs=001FC0  Size=000024  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ldai.o):
+    CODE              Offs=001FE4  Size=00000C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ldaxi.o):
+    CODE              Offs=001FF0  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ldaxsp.o):
+    CODE              Offs=001FFD  Size=000009  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ldeaxi.o):
+    CODE              Offs=002006  Size=000017  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ldeaxysp.o):
+    CODE              Offs=00201D  Size=000013  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(leaaxsp.o):
+    CODE              Offs=002030  Size=00000C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(lmul.o):
+    CODE              Offs=00203C  Size=000059  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(lneg.o):
+    CODE              Offs=002095  Size=00001E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(loadaddr.o):
+    LOADADDR          Offs=000000  Size=000002  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(lpush.o):
+    CODE              Offs=0020B3  Size=00001E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(lsub.o):
+    CODE              Offs=0020D1  Size=000024  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ltoa.o):
+    CODE              Offs=0020F5  Size=000093  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(ludiv.o):
+    CODE              Offs=002188  Size=000077  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(lumod.o):
+    CODE              Offs=0021FF  Size=000017  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(makebool.o):
+    CODE              Offs=002216  Size=00002C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(memcpy.o):
+    CODE              Offs=002242  Size=00003C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(mktime.o):
+    CODE              Offs=00227E  Size=000257  Align=00001  Fill=0000
+    BSS               Offs=000377  Size=000005  Align=00001  Fill=0000
+    DATA              Offs=000162  Size=000024  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(mod.o):
+    CODE              Offs=0024D5  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(mul.o):
+    CODE              Offs=0024E6  Size=000045  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(mul8.o):
+    CODE              Offs=00252B  Size=00003A  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(mulax3.o):
+    CODE              Offs=002565  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(negabs.o):
+    CODE              Offs=002576  Size=000012  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(or.o):
+    CODE              Offs=002588  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(popa.o):
+    CODE              Offs=002599  Size=00000A  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(popptr1.o):
+    CODE              Offs=0025A3  Size=00000E  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(push1.o):
+    CODE              Offs=0025B1  Size=000005  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(pusha.o):
+    CODE              Offs=0025B6  Size=000016  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(pushax.o):
+    CODE              Offs=0025CC  Size=00001A  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(pushw.o):
+    CODE              Offs=0025E6  Size=00000F  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(pushwsp.o):
+    CODE              Offs=0025F5  Size=00001C  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(rand.o):
+    CODE              Offs=002611  Size=000034  Align=00001  Fill=0000
+    DATA              Offs=000186  Size=000004  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(randomize.o):
+    CODE              Offs=002645  Size=000006  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(return0.o):
+    CODE              Offs=00264B  Size=000004  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(revers.o):
+    CODE              Offs=00264F  Size=000013  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(shelp.o):
+    CODE              Offs=002662  Size=000020  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(shrax1.o):
+    CODE              Offs=002682  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(shrax2.o):
+    CODE              Offs=00268A  Size=00000B  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(shrax4.o):
+    CODE              Offs=002695  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(shreax4.o):
+    CODE              Offs=0026A6  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(sprintf.o):
+    CODE              Offs=0026B7  Size=00002B  Align=00001  Fill=0000
+    BSS               Offs=00037C  Size=000001  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(sprites_enable.o):
+    CODE              Offs=0026E2  Size=00001F  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(staxsp.o):
+    CODE              Offs=002701  Size=00000B  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(steaxsp.o):
+    CODE              Offs=00270C  Size=000015  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(steaxspi.o):
+    CODE              Offs=002721  Size=000022  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(strlen.o):
+    CODE              Offs=002743  Size=000016  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(strlower.o):
+    CODE              Offs=002759  Size=000027  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(sub.o):
+    CODE              Offs=002780  Size=000014  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(time.o):
+    CODE              Offs=002794  Size=000043  Align=00001  Fill=0000
+    BSS               Offs=00037D  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(timezone.o):
+    DATA              Offs=00018A  Size=00000F  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(tmcommon.o):
+    CODE              Offs=0027D7  Size=00000D  Align=00001  Fill=0000
+    DATA              Offs=000199  Size=000012  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(udiv.o):
+    CODE              Offs=0027E4  Size=00004F  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(umod.o):
+    CODE              Offs=002833  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(vcprintf.o):
+    CODE              Offs=002844  Size=000074  Align=00001  Fill=0000
+    DATA              Offs=0001AB  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(vsnprintf.o):
+    CODE              Offs=0028B8  Size=0000DA  Align=00001  Fill=0000
+    DATA              Offs=0001B3  Size=000008  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(vsprintf.o):
+    CODE              Offs=002992  Size=000012  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(waitvsync.o):
+    CODE              Offs=0029A4  Size=00000D  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(xor.o):
+    CODE              Offs=0029B1  Size=000011  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(zerobss.o):
+    CODE              Offs=0029C2  Size=000023  Align=00001  Fill=0000
+/Volumes/Zort/git/cc65/lib/cx16.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000022  00003B  00001A  00001
+LOADADDR              0007FF  000800  000002  00001
+EXEHDR                000801  00080C  00000C  00001
+STARTUP               00080D  00082D  000021  00001
+CODE                  00082E  003212  0029E5  00001
+RODATA                003213  00360B  0003F9  00001
+DATA                  00360C  0037C6  0001BB  00001
+INIT                  0037C7  0037C8  000002  00001
+BSS                   0037C9  003B4D  000385  00001
+ONCE                  0037C9  0037EF  000027  00001
+
+
+Exports list by name:
+---------------------
+CHROUT                    00FFD2 RLA    CLOCK_GET_DATE_TIME       00FF50 RLA    
+ENTROPY_GET               00FECF RLA    GETIN                     00FFE4 RLA    
+KBDBUF_PEEK               00FEBD RLA    LOAD                      00FFD5 RLA    
+PLOT                      00FFF0 RLA    RDTIM                     00FFDE RLA    
+SETLFS                    00FFBA RLA    SETNAM                    00FFBD RLA    
+TM                        0037A5 RLA    __BSS_RUN__               0037C9 RLA    
+__BSS_SIZE__              000385 REA    __CONSTRUCTOR_COUNT__     000000 REA    
+__CONSTRUCTOR_TABLE__     0037F0 RLA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      00360C RLA    __EXEHDR__                000001 REA    
+__HEADER_LAST__           00080D RLA    __HIMEM__                 009F00 REA    
+__LOADADDR__              000001 REA    __MAIN_SIZE__             0096F3 REA    
+__MAIN_START__            00080D RLA    __ONCE_RUN__              0037C9 RLA    
+__STACKSIZE__             000800 REA    __STARTUP__               000001 REA    
+___directerrno            002043 RLA    ___errno                  003B3E RLA    
+___oserror                003B11 RLA    ___randomize              002E73 RLA    
+___seterrno               0023ED RLA    __ctype                   003581 RLA    
+__ctypeidx                00358C RLA    __hextab                  00355D RLA    
+__longminstr              00356D RLA    __printf                  00213D RLA    
+__sys                     0023F6 RLA    __tz                      003796 RLA    
+_bgcolor                  0025A2 RLA    _calendar_display         001872 RLA    
+_calendar_get_long_count  000FD2 RLA    _cbm_k_load               0024C2 RLA    
+_cbm_k_setlfs             0024DF RLA    _cbm_k_setnam             0024ED RLA    
+_cgetc                    002517 RLA    _clock_gettime            002700 RLA    
+_clrscr                   00257E RLA    _cprintf                  0025C5 RLA    
+_cputc                    0025F4 RLA    _cputcxy                  0025EF RLA    
+_cputsxy                  002651 RLA    _div                      0026EB RLA    
+_getShipData              000E8C RLA    _gotoxy                   00274F RLA    
+_kbhit                    0027E9 RLA    _ltoa                     00293B RLA    
+_main                     000DA6 RLA    _map_display_calculate    0018C0 RLA    
+_map_display_frame_draw   001A24 RLA    _map_display_init         0018BF RLA    
+_map_display_region       001AB9 RLA    _map_engine_get_center_tile 00147F RLA    
+_map_engine_get_location  00110F RLA    _map_engine_get_terrain_at 001220 RLA    
+_map_engine_has_land_east 001270 RLA    _map_engine_has_land_north 001232 RLA    
+_map_engine_has_land_south 001251 RLA    _map_engine_has_land_west 00128F RLA    
+_map_engine_has_object_at 001229 RLA    _map_engine_has_settlement_nearby 0012D5 RLA    
+_map_engine_init          0010F5 RLA    _map_engine_move_east     0011B0 RLA    
+_map_engine_move_north    001140 RLA    _map_engine_move_south    001177 RLA    
+_map_engine_move_west     0011E9 RLA    _map_engine_place_settlement_at 001429 RLA    
+_memcpy                   002A70 RLA    _mktime                   002B37 RLA    
+_revers                   002E7D RLA    _sprintf                  002EE5 RLA    
+_sprite_define            0014A5 RLA    _sprite_horiz_flip        0017D3 RLA    
+_sprite_horiz_unflip      001804 RLA    _srand                    002E3F RLA    
+_strlen                   002F71 RLA    _strlower                 002F87 RLA    
+_textcolor                00258F RLA    _time                     002FC2 RLA    
+_ultoa                    00297A RLA    _vcprintf                 0030B6 RLA    
+_vera_sprites_enable      002F10 RLA    _vsprintf                 0031C0 RLA    
+_waitvsync                0031D2 RLA    addysp                    002453 RLA    
+addysp1                   002452 RLA    aslax1                    002460 RLA    
+aslax3                    002473 RLA    aslax4                    002481 RLA    
+asrax1                    002492 RLA    asrax4                    00249C RLA    
+axlong                    0024B5 RLA    axulong                   0024BB RLA    
+boolne                    002A44 RLA    callmain                  002500 RLA    
+ctypemaskdirect           002672 RLA    cursor                    003B10 RLA    
+decsp1                    00268C RLA    decsp2                    002695 RLA    
+decsp3                    0026A2 RLA    decsp4                    0026AF RLA    
+decsp6                    0026BC RLA    decsp7                    0026C9 RLA    
+donelib                   0025B9 RLA    getlop                    0029C5 RLA    
+gotoxy                    00274C RLA    incax2                    002789 RLA    
+incax3                    002790 RLA    incax4                    0027A4 RLA    
+incax5                    002795 RLA    incax6                    00279A RLA    
+incax7                    00279F RLA    incaxy                    0027A6 RLA    
+incsp1                    0027AF RLA    incsp2                    0027BD RLA    
+incsp3                    0027CB RLA    incsp4                    0027D0 RLA    
+incsp5                    0027D5 RLA    incsp6                    0027DA RLA    
+incsp7                    0027DF RLA    incsp8                    0027E4 RLA    
+initlib                   0037C9 RLA    jmpvec                    00376B RLA    
+ldaidx                    002812 RLA    ldax0sp                   00282B RLA    
+ldaxi                     00281E RLA    ldaxidx                   002820 RLA    
+ldaxysp                   00282D RLA    ldeax0sp                  00284B RLA    
+ldeaxi                    002834 RLA    leaa0sp                   00285E RLA    
+load_jiffy                003005 RLA    mul8x16                   002D5B RLA    
+mul8x16a                  002D65 RLA    mulax3                    002D93 RLA    
+negax                     002DA8 RLA    negeax                    0028C3 RLA    
+plot                      002620 RLA    popa                      002DC7 RLA    
+popax                     0027B6 RLA    popptr1                   002DD1 RLA    
+popsargsudiv16            002E90 RLA    ptr1                      00002A RLZ    
+ptr2                      00002C RLZ    ptr3                      00002E RLZ    
+ptr4                      000030 RLZ    push1                     002DDF RLA    
+pusha                     002DE8 RLA    pusha0                    002DFC RLA    
+pushax                    002DFE RLA    pusheax                   0028E8 RLA    
+pushw0sp                  002E23 RLA    pushwidx                  002E16 RLA    
+regbank                   000036 RLZ    return0                   002E79 RLA    
+shlax1                    002460 RLA    shlax2                    002468 RLA    
+shlax3                    002473 RLA    shlax4                    002481 RLA    
+shrax1                    002EB0 RLA    shrax2                    002EB8 RLA    
+shrax4                    002EC3 RLA    shreax4                   002ED4 RLA    
+sp                        000022 RLZ    sreg                      000024 RLZ    
+stax0sp                   002F2F RLA    staxysp                   002F31 RLA    
+steax0sp                  002F3A RLA    steaxspidx                002F4F RLA    
+tmp1                      000032 RLZ    tmp2                      000033 RLZ    
+tmp3                      000034 RLZ    tmp4                      000035 RLZ    
+tosaddax                  00243C RLA    tosaddeax                 0027F4 RLA    
+tosdiva0                  0026D6 RLA    tosdivax                  0026D8 RLA    
+tosicmp                   00275D RLA    tosicmp0                  00275B RLA    
+tosmoda0                  002D03 RLA    tosmul0ax                 00286A RLA    
+tosmula0                  002D59 RLA    tosora0                   002DB6 RLA    
+tossubax                  002FB0 RLA    tossubeax                 002903 RLA    
+tosudiv0ax                0029B6 RLA    tosudiveax                0029BA RLA    
+tosumod0ax                002A2D RLA    tosumodax                 003063 RLA    
+tosumula0                 002D59 RLA    tosumulax                 002D14 RLA    
+tosumuleax                00286E RLA    tosxora0                  0031DF RLA    
+udiv16                    003023 RLA    udiv32                    0029E8 RLA    
+vsnprintf                 0030E9 RLA    zerobss                   0031F0 RLA    
+
+
+
+Exports list by value:
+----------------------
+__CONSTRUCTOR_COUNT__     000000 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__LOADADDR__              000001 REA    __STARTUP__               000001 REA    
+__EXEHDR__                000001 REA    sp                        000022 RLZ    
+sreg                      000024 RLZ    ptr1                      00002A RLZ    
+ptr2                      00002C RLZ    ptr3                      00002E RLZ    
+ptr4                      000030 RLZ    tmp1                      000032 RLZ    
+tmp2                      000033 RLZ    tmp3                      000034 RLZ    
+tmp4                      000035 RLZ    regbank                   000036 RLZ    
+__BSS_SIZE__              000385 REA    __STACKSIZE__             000800 REA    
+__HEADER_LAST__           00080D RLA    __MAIN_START__            00080D RLA    
+_main                     000DA6 RLA    _getShipData              000E8C RLA    
+_calendar_get_long_count  000FD2 RLA    _map_engine_init          0010F5 RLA    
+_map_engine_get_location  00110F RLA    _map_engine_move_north    001140 RLA    
+_map_engine_move_south    001177 RLA    _map_engine_move_east     0011B0 RLA    
+_map_engine_move_west     0011E9 RLA    _map_engine_get_terrain_at 001220 RLA    
+_map_engine_has_object_at 001229 RLA    _map_engine_has_land_north 001232 RLA    
+_map_engine_has_land_south 001251 RLA    _map_engine_has_land_east 001270 RLA    
+_map_engine_has_land_west 00128F RLA    _map_engine_has_settlement_nearby 0012D5 RLA    
+_map_engine_place_settlement_at 001429 RLA    _map_engine_get_center_tile 00147F RLA    
+_sprite_define            0014A5 RLA    _sprite_horiz_flip        0017D3 RLA    
+_sprite_horiz_unflip      001804 RLA    _calendar_display         001872 RLA    
+_map_display_init         0018BF RLA    _map_display_calculate    0018C0 RLA    
+_map_display_frame_draw   001A24 RLA    _map_display_region       001AB9 RLA    
+___directerrno            002043 RLA    __printf                  00213D RLA    
+___seterrno               0023ED RLA    __sys                     0023F6 RLA    
+tosaddax                  00243C RLA    addysp1                   002452 RLA    
+addysp                    002453 RLA    aslax1                    002460 RLA    
+shlax1                    002460 RLA    shlax2                    002468 RLA    
+aslax3                    002473 RLA    shlax3                    002473 RLA    
+shlax4                    002481 RLA    aslax4                    002481 RLA    
+asrax1                    002492 RLA    asrax4                    00249C RLA    
+axlong                    0024B5 RLA    axulong                   0024BB RLA    
+_cbm_k_load               0024C2 RLA    _cbm_k_setlfs             0024DF RLA    
+_cbm_k_setnam             0024ED RLA    callmain                  002500 RLA    
+_cgetc                    002517 RLA    _clrscr                   00257E RLA    
+_textcolor                00258F RLA    _bgcolor                  0025A2 RLA    
+donelib                   0025B9 RLA    _cprintf                  0025C5 RLA    
+_cputcxy                  0025EF RLA    _cputc                    0025F4 RLA    
+plot                      002620 RLA    _cputsxy                  002651 RLA    
+ctypemaskdirect           002672 RLA    decsp1                    00268C RLA    
+decsp2                    002695 RLA    decsp3                    0026A2 RLA    
+decsp4                    0026AF RLA    decsp6                    0026BC RLA    
+decsp7                    0026C9 RLA    tosdiva0                  0026D6 RLA    
+tosdivax                  0026D8 RLA    _div                      0026EB RLA    
+_clock_gettime            002700 RLA    gotoxy                    00274C RLA    
+_gotoxy                   00274F RLA    tosicmp0                  00275B RLA    
+tosicmp                   00275D RLA    incax2                    002789 RLA    
+incax3                    002790 RLA    incax5                    002795 RLA    
+incax6                    00279A RLA    incax7                    00279F RLA    
+incax4                    0027A4 RLA    incaxy                    0027A6 RLA    
+incsp1                    0027AF RLA    popax                     0027B6 RLA    
+incsp2                    0027BD RLA    incsp3                    0027CB RLA    
+incsp4                    0027D0 RLA    incsp5                    0027D5 RLA    
+incsp6                    0027DA RLA    incsp7                    0027DF RLA    
+incsp8                    0027E4 RLA    _kbhit                    0027E9 RLA    
+tosaddeax                 0027F4 RLA    ldaidx                    002812 RLA    
+ldaxi                     00281E RLA    ldaxidx                   002820 RLA    
+ldax0sp                   00282B RLA    ldaxysp                   00282D RLA    
+ldeaxi                    002834 RLA    ldeax0sp                  00284B RLA    
+leaa0sp                   00285E RLA    tosmul0ax                 00286A RLA    
+tosumuleax                00286E RLA    negeax                    0028C3 RLA    
+pusheax                   0028E8 RLA    tossubeax                 002903 RLA    
+_ltoa                     00293B RLA    _ultoa                    00297A RLA    
+tosudiv0ax                0029B6 RLA    tosudiveax                0029BA RLA    
+getlop                    0029C5 RLA    udiv32                    0029E8 RLA    
+tosumod0ax                002A2D RLA    boolne                    002A44 RLA    
+_memcpy                   002A70 RLA    _mktime                   002B37 RLA    
+tosmoda0                  002D03 RLA    tosumulax                 002D14 RLA    
+tosmula0                  002D59 RLA    tosumula0                 002D59 RLA    
+mul8x16                   002D5B RLA    mul8x16a                  002D65 RLA    
+mulax3                    002D93 RLA    negax                     002DA8 RLA    
+tosora0                   002DB6 RLA    popa                      002DC7 RLA    
+popptr1                   002DD1 RLA    push1                     002DDF RLA    
+pusha                     002DE8 RLA    pusha0                    002DFC RLA    
+pushax                    002DFE RLA    pushwidx                  002E16 RLA    
+pushw0sp                  002E23 RLA    _srand                    002E3F RLA    
+___randomize              002E73 RLA    return0                   002E79 RLA    
+_revers                   002E7D RLA    popsargsudiv16            002E90 RLA    
+shrax1                    002EB0 RLA    shrax2                    002EB8 RLA    
+shrax4                    002EC3 RLA    shreax4                   002ED4 RLA    
+_sprintf                  002EE5 RLA    _vera_sprites_enable      002F10 RLA    
+stax0sp                   002F2F RLA    staxysp                   002F31 RLA    
+steax0sp                  002F3A RLA    steaxspidx                002F4F RLA    
+_strlen                   002F71 RLA    _strlower                 002F87 RLA    
+tossubax                  002FB0 RLA    _time                     002FC2 RLA    
+load_jiffy                003005 RLA    udiv16                    003023 RLA    
+tosumodax                 003063 RLA    _vcprintf                 0030B6 RLA    
+vsnprintf                 0030E9 RLA    _vsprintf                 0031C0 RLA    
+_waitvsync                0031D2 RLA    tosxora0                  0031DF RLA    
+zerobss                   0031F0 RLA    __hextab                  00355D RLA    
+__longminstr              00356D RLA    __ctype                   003581 RLA    
+__ctypeidx                00358C RLA    __DESTRUCTOR_TABLE__      00360C RLA    
+jmpvec                    00376B RLA    __tz                      003796 RLA    
+TM                        0037A5 RLA    __ONCE_RUN__              0037C9 RLA    
+__BSS_RUN__               0037C9 RLA    initlib                   0037C9 RLA    
+__CONSTRUCTOR_TABLE__     0037F0 RLA    cursor                    003B10 RLA    
+___oserror                003B11 RLA    ___errno                  003B3E RLA    
+__MAIN_SIZE__             0096F3 REA    __HIMEM__                 009F00 REA    
+KBDBUF_PEEK               00FEBD RLA    ENTROPY_GET               00FECF RLA    
+CLOCK_GET_DATE_TIME       00FF50 RLA    SETLFS                    00FFBA RLA    
+SETNAM                    00FFBD RLA    CHROUT                    00FFD2 RLA    
+LOAD                      00FFD5 RLA    RDTIM                     00FFDE RLA    
+GETIN                     00FFE4 RLA    PLOT                      00FFF0 RLA    
+
+
+
+Imports list:
+-------------
+CHROUT (kernal.o):
+    crt0.o                    cx16/crt0.s:10
+    clrscr.o                  cx16/clrscr.s:10
+CLOCK_GET_DATE_TIME (kernal.o):
+    gettime.o                 cx16/gettime.s:12
+ENTROPY_GET (kernal.o):
+    randomize.o               cx16/randomize.s:10
+GETIN (kernal.o):
+    cgetc.o                   cx16/cgetc.s:10
+KBDBUF_PEEK (kernal.o):
+    kbhit.o                   cx16/kbhit.s:10
+LOAD (kernal.o):
+    c_load.o                  cbm/cbm.inc:37
+PLOT (kernal.o):
+    cputc.o                   cx16/cputc.s:11
+RDTIM (kernal.o):
+    waitvsync.o               cx16/waitvsync.s:14
+SETLFS (kernal.o):
+    c_setlfs.o                cbm/cbm.inc:33
+SETNAM (kernal.o):
+    c_setnam.o                cbm/cbm.inc:34
+TM (tmcommon.o):
+    gettime.o                 cx16/gettime.s:11
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s:8
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:18
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s:19
+__EXEHDR__ (exehdr.o):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:6
+__HEADER_LAST__ ([linker generated]):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:14
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:14
+__HIMEM__ ([linker generated]):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:15
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:14
+__LOADADDR__ (loadaddr.o):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:5
+__MAIN_SIZE__ ([linker generated]):
+    crt0.o                    cx16/crt0.s:11
+__MAIN_START__ ([linker generated]):
+    crt0.o                    cx16/crt0.s:11
+__ONCE_RUN__ ([linker generated]):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:15
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:15
+__STACKSIZE__ ([linker generated]):
+    [linker generated]        /Volumes/Zort/git/cc65/cfg/cx16.cfg:15
+__STARTUP__ (crt0.o):
+    main.o                    main.s:13
+___directerrno (_directerrno.o):
+    vsnprintf.o               /Volumes/Zort/git/cc65/asminc/errno.inc:10
+___errno (errno.o):
+    _seterrno.o               /Volumes/Zort/git/cc65/asminc/errno.inc:7
+___oserror (_oserror.o):
+    _directerrno.o            /Volumes/Zort/git/cc65/asminc/errno.inc:7
+    c_load.o                  cbm/c_load.s:10
+___randomize (randomize.o):
+    main.o                    main.s:29
+___seterrno (_seterrno.o):
+    _directerrno.o            /Volumes/Zort/git/cc65/asminc/errno.inc:9
+__ctype (ctype.o):
+    ctypemask.o               common/ctypemask.s:23
+__ctypeidx (ctype.o):
+    ctypemask.o               common/ctypemask.s:24
+__hextab (_hextab.o):
+    ltoa.o                    common/ltoa.s:10
+__longminstr (_longminstr.o):
+    ltoa.o                    common/ltoa.s:10
+__printf (_printf.o):
+    vsnprintf.o               common/vsnprintf.s:10
+    vcprintf.o                conio/vcprintf.s:9
+__sys (_sys.o):
+    ADSR.o                    adapters/psg/ADSR.s:13
+    main.o                    main.s:14
+__tz (timezone.o):
+    mktime.o                  common/mktime.s:12
+_bgcolor (color.o):
+    main.o                    main.s:28
+_calendar_display (calendar.o):
+    main.o                    main.s:48
+_calendar_get_long_count (calendar_engine.o):
+    calendar.o                adapters/display/calendar.s:15
+_cbm_k_load (c_load.o):
+    ADSR.o                    adapters/psg/ADSR.s:14
+    main.o                    main.s:17
+_cbm_k_setlfs (c_setlfs.o):
+    ADSR.o                    adapters/psg/ADSR.s:15
+    main.o                    main.s:18
+_cbm_k_setnam (c_setnam.o):
+    ADSR.o                    adapters/psg/ADSR.s:16
+    main.o                    main.s:19
+_cgetc (cgetc.o):
+    main.o                    main.s:25
+_clock_gettime (gettime.o):
+    time.o                    /Volumes/Zort/git/cc65/asminc/time.inc:65
+_clrscr (clrscr.o):
+    main.o                    main.s:20
+_cprintf (cprintf.o):
+    main.o                    main.s:24
+_cputc (cputc.o):
+    vcprintf.o                conio/vcprintf.s:9
+    cputs.o                   conio/cputs.s:9
+_cputcxy (cputc.o):
+    map_display.o             adapters/display/map_display.s:13
+_cputsxy (cputs.o):
+    map_display.o             adapters/display/map_display.s:14
+    calendar.o                adapters/display/calendar.s:13
+    main.o                    main.s:23
+_div (divt.o):
+    mktime.o                  common/mktime.s:14
+_getShipData (ship.o):
+    main.o                    main.s:30
+_gotoxy (gotoxy.o):
+    main.o                    main.s:22
+_kbhit (kbhit.o):
+    cgetc.o                   cx16/cgetc.s:10
+    main.o                    main.s:21
+_ltoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_main (main.o):
+    callmain.o                runtime/callmain.s:11
+_map_display_calculate (map_display.o):
+    main.o                    main.s:50
+_map_display_frame_draw (map_display.o):
+    main.o                    main.s:51
+_map_display_init (map_display.o):
+    main.o                    main.s:49
+_map_display_region (map_display.o):
+    main.o                    main.s:52
+_map_engine_get_center_tile (map_engine.o):
+    main.o                    main.s:44
+_map_engine_get_location (map_engine.o):
+    map_display.o             adapters/display/map_display.s:17
+_map_engine_get_terrain_at (map_engine.o):
+    map_display.o             adapters/display/map_display.s:18
+    main.o                    main.s:36
+_map_engine_has_land_east (map_engine.o):
+    main.o                    main.s:40
+_map_engine_has_land_north (map_engine.o):
+    main.o                    main.s:38
+_map_engine_has_land_south (map_engine.o):
+    main.o                    main.s:39
+_map_engine_has_land_west (map_engine.o):
+    main.o                    main.s:41
+_map_engine_has_object_at (map_engine.o):
+    main.o                    main.s:37
+_map_engine_has_settlement_nearby (map_engine.o):
+    main.o                    main.s:42
+_map_engine_init (map_engine.o):
+    main.o                    main.s:31
+_map_engine_move_east (map_engine.o):
+    main.o                    main.s:34
+_map_engine_move_north (map_engine.o):
+    main.o                    main.s:32
+_map_engine_move_south (map_engine.o):
+    main.o                    main.s:33
+_map_engine_move_west (map_engine.o):
+    main.o                    main.s:35
+_map_engine_place_settlement_at (map_engine.o):
+    main.o                    main.s:43
+_memcpy (memcpy.o):
+    vsnprintf.o               common/vsnprintf.s:10
+_mktime (mktime.o):
+    gettime.o                 /Volumes/Zort/git/cc65/asminc/time.inc:68
+_revers (revers.o):
+    map_display.o             adapters/display/map_display.s:15
+    main.o                    main.s:26
+_sprintf (sprintf.o):
+    calendar.o                adapters/display/calendar.s:14
+_sprite_define (sprite.o):
+    map_display.o             adapters/display/map_display.s:23
+    main.o                    main.s:45
+_sprite_horiz_flip (sprite.o):
+    main.o                    main.s:46
+_sprite_horiz_unflip (sprite.o):
+    main.o                    main.s:47
+_srand (rand.o):
+    randomize.o               cx16/randomize.s:10
+_strlen (strlen.o):
+    _printf.o                 common/_printf.s:13
+_strlower (strlower.o):
+    _printf.o                 common/_printf.s:13
+_textcolor (color.o):
+    map_display.o             adapters/display/map_display.s:16
+    main.o                    main.s:27
+_time (time.o):
+    calendar_engine.o         core/calendar_engine.s:13
+_ultoa (ltoa.o):
+    _printf.o                 common/_printf.s:12
+_vcprintf (vcprintf.o):
+    cprintf.o                 conio/cprintf.s:8
+_vera_sprites_enable (sprites_enable.o):
+    main.o                    main.s:15
+_vsprintf (vsprintf.o):
+    sprintf.o                 common/sprintf.s:8
+_waitvsync (waitvsync.o):
+    main.o                    main.s:16
+addysp (addysp.o):
+    sprintf.o                 common/sprintf.s:8
+    incsp8.o                  runtime/incsp8.s:8
+    incsp7.o                  runtime/incsp7.s:8
+    incsp6.o                  runtime/incsp6.s:8
+    incsp5.o                  runtime/incsp5.s:8
+    incsp4.o                  runtime/incsp4.s:8
+    incsp3.o                  runtime/incsp3.s:8
+    cprintf.o                 conio/cprintf.s:8
+    map_display.o             adapters/display/map_display.s:572
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+addysp1 (addysp.o):
+    lsub.o                    runtime/lsub.s:11
+    ladd.o                    runtime/ladd.s:8
+    lmul.o                    runtime/lmul.s:9
+    xor.o                     runtime/xor.s:9
+    sub.o                     runtime/sub.s:8
+    or.o                      runtime/or.s:9
+    ludiv.o                   runtime/ludiv.s:9
+aslax1 (aslax1.o):
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+aslax3 (aslax3.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+aslax4 (aslax4.o):
+    map_display.o             adapters/display/map_display.s:572
+asrax1 (asrax1.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+asrax4 (asrax4.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+axlong (axlong.o):
+    _printf.o                 common/_printf.s:11
+axulong (axlong.o):
+    _printf.o                 common/_printf.s:11
+boolne (makebool.o):
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+callmain (callmain.o):
+    crt0.o                    cx16/crt0.s:9
+ctypemaskdirect (ctypemask.o):
+    strlower.o                common/strlower.s:14
+cursor (_cursor.o):
+    cgetc.o                   cx16/cgetc.s:10
+decsp1 (decsp1.o):
+    time.o                    common/time.s:9
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+decsp2 (decsp2.o):
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    main.o                    main.s:924
+decsp3 (decsp3.o):
+    map_display.o             adapters/display/map_display.s:572
+    main.o                    main.s:924
+decsp4 (decsp4.o):
+    sprintf.o                 common/sprintf.s:8
+    lpush.o                   runtime/lpush.s:12
+    calendar.o                adapters/display/calendar.s:103
+decsp6 (decsp6.o):
+    _printf.o                 common/_printf.s:11
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_engine.o              core/map_engine.s:754
+    main.o                    main.s:924
+decsp7 (decsp7.o):
+    map_display.o             adapters/display/map_display.s:572
+    calendar_engine.o         core/calendar_engine.s:470
+donelib (condes.o):
+    crt0.o                    cx16/crt0.s:8
+getlop (ludiv.o):
+    lumod.o                   runtime/lumod.s:9
+gotoxy (gotoxy.o):
+    cputs.o                   conio/cputs.s:9
+    cputc.o                   cx16/cputc.s:11
+incax2 (incax2.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+incax3 (incax3.o):
+    sprite.o                  adapters/display/sprite.s:563
+incax4 (incaxy.o):
+    sprite.o                  adapters/display/sprite.s:563
+incax5 (incax5.o):
+    sprite.o                  adapters/display/sprite.s:563
+incax6 (incax6.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+incax7 (incax7.o):
+    sprite.o                  adapters/display/sprite.s:563
+incaxy (incaxy.o):
+    incax7.o                  runtime/incax7.s:8
+    incax6.o                  runtime/incax6.s:8
+    incax5.o                  runtime/incax5.s:8
+    incax3.o                  runtime/incax3.s:8
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    main.o                    main.s:924
+    main.o                    main.s:924
+incsp1 (incsp1.o):
+    gettime.o                 cx16/gettime.s:10
+    ADSR.o                    adapters/psg/ADSR.s:397
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+    ship.o                    core/ship.s:133
+    main.o                    main.s:924
+incsp2 (incsp2.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    popptr1.o                 runtime/popptr1.s:8
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_display.o             adapters/display/map_display.s:572
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+    main.o                    main.s:924
+incsp3 (incsp3.o):
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    main.o                    main.s:924
+incsp4 (incsp4.o):
+    map_display.o             adapters/display/map_display.s:572
+    calendar.o                adapters/display/calendar.s:103
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    main.o                    main.s:924
+incsp5 (incsp5.o):
+    sprite.o                  adapters/display/sprite.s:563
+incsp6 (incsp6.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_display.o             adapters/display/map_display.s:572
+    main.o                    main.s:924
+incsp7 (incsp7.o):
+    ADSR.o                    adapters/psg/ADSR.s:397
+incsp8 (incsp8.o):
+    ADSR.o                    adapters/psg/ADSR.s:397
+initlib (condes.o):
+    crt0.o                    cx16/crt0.s:8
+jmpvec (jmpvec.o):
+    _sys.o                    common/_sys.s:8
+ldaidx (ldai.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+ldax0sp (ldaxsp.o):
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+ldaxi (ldaxi.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+ldaxidx (ldaxi.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    main.o                    main.s:924
+ldaxysp (ldaxsp.o):
+    vsnprintf.o               common/vsnprintf.s:9
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+    main.o                    main.s:924
+ldeax0sp (ldeaxysp.o):
+    calendar_engine.o         core/calendar_engine.s:470
+ldeaxi (ldeaxi.o):
+    time.o                    common/time.s:9
+leaa0sp (leaaxsp.o):
+    main.o                    main.s:924
+load_jiffy (tmcommon.o):
+    gettime.o                 cx16/gettime.s:11
+mul8x16 (mul8.o):
+    mul.o                     runtime/mul.s:8
+mul8x16a (mul8.o):
+    mul.o                     runtime/mul.s:8
+mulax3 (mulax3.o):
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+negax (negabs.o):
+    divt.o                    common/divt.s:17
+    shelp.o                   runtime/shelp.s:11
+    mod.o                     runtime/mod.s:11
+    div.o                     runtime/div.s:11
+    main.o                    main.s:924
+negeax (lneg.o):
+    ltoa.o                    common/ltoa.s:9
+plot (cputc.o):
+    gotoxy.o                  cx16/gotoxy.s:9
+popa (popa.o):
+    gotoxy.o                  cx16/gotoxy.s:9
+    c_setlfs.o                cbm/c_setlfs.s:12
+    c_load.o                  cbm/c_load.s:11
+popax (incsp2.o):
+    memcpy.o                  common/memcpy.s:14
+    vsnprintf.o               common/vsnprintf.s:9
+    ltoa.o                    common/ltoa.s:9
+    _printf.o                 common/_printf.s:11
+    vcprintf.o                conio/vcprintf.s:8
+    shelp.o                   runtime/shelp.s:11
+popptr1 (popptr1.o):
+    memcpy.o                  common/memcpy.s:14
+    umod.o                    runtime/umod.s:8
+    steaxspi.o                runtime/steaxspi.s:9
+    mul.o                     runtime/mul.s:9
+    ltoa.o                    common/ltoa.s:9
+    vcprintf.o                conio/vcprintf.s:8
+    udiv.o                    runtime/udiv.s:9
+    mul8.o                    runtime/mul8.s:9
+popsargsudiv16 (shelp.o):
+    mod.o                     runtime/mod.s:11
+    div.o                     runtime/div.s:11
+ptr1 (zeropage.o):
+    memcpy.o                  common/memcpy.s:15
+    vsnprintf.o               common/vsnprintf.s:11
+    strlower.o                common/strlower.s:13
+    steaxspi.o                runtime/steaxspi.s:10
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    lmul.o                    runtime/lmul.s:10
+    ldeaxi.o                  runtime/ldeaxi.s:8
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:12
+    zerobss.o                 common/zerobss.s:9
+    vcprintf.o                conio/vcprintf.s:10
+    udiv.o                    runtime/udiv.s:10
+    time.o                    common/time.s:10
+    sprintf.o                 common/sprintf.s:9
+    shelp.o                   runtime/shelp.s:12
+    pushw.o                   runtime/pushw.s:9
+    popptr1.o                 runtime/popptr1.s:9
+    mulax3.o                  runtime/mulax3.s:9
+    mul8.o                    runtime/mul8.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    ldaxi.o                   runtime/ldaxi.s:8
+    ldai.o                    runtime/ldai.s:8
+    div.o                     runtime/div.s:12
+    cputs.o                   conio/cputs.s:10
+    cprintf.o                 conio/cprintf.s:9
+    c_setnam.o                cbm/c_setnam.s:10
+    c_load.o                  cbm/c_load.s:12
+    _sys.o                    common/_sys.s:9
+    ADSR.o                    adapters/psg/ADSR.s:11
+    map_display.o             adapters/display/map_display.s:11
+    sprite.o                  adapters/display/sprite.s:11
+    map_engine.o              core/map_engine.s:11
+    calendar_engine.o         core/calendar_engine.s:11
+    main.o                    main.s:11
+ptr2 (zeropage.o):
+    memcpy.o                  common/memcpy.s:15
+    strlower.o                common/strlower.s:13
+    mktime.o                  common/mktime.s:15
+    ltoa.o                    common/ltoa.s:11
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:12
+    vcprintf.o                conio/vcprintf.s:10
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    sprite.o                  adapters/display/sprite.s:11
+ptr3 (zeropage.o):
+    memcpy.o                  common/memcpy.s:15
+    ltoa.o                    common/ltoa.s:11
+    lmul.o                    runtime/lmul.s:10
+    vcprintf.o                conio/vcprintf.s:10
+    ludiv.o                   runtime/ludiv.s:10
+ptr4 (zeropage.o):
+    umod.o                    runtime/umod.s:9
+    strlen.o                  common/strlen.s:12
+    mul.o                     runtime/mul.s:10
+    lmul.o                    runtime/lmul.s:10
+    udiv.o                    runtime/udiv.s:10
+    shelp.o                   runtime/shelp.s:12
+    mul8.o                    runtime/mul8.s:10
+    ludiv.o                   runtime/ludiv.s:10
+push1 (push1.o):
+    _printf.o                 common/_printf.s:11
+pusha (pusha.o):
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+    calendar.o                adapters/display/calendar.s:103
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+    ship.o                    core/ship.s:133
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+pusha0 (pushax.o):
+    push1.o                   runtime/push1.s:8
+    mktime.o                  common/mktime.s:13
+    map_display.o             adapters/display/map_display.s:572
+    calendar.o                adapters/display/calendar.s:103
+    sprite.o                  adapters/display/sprite.s:563
+    calendar_engine.o         core/calendar_engine.s:470
+    ship.o                    core/ship.s:133
+    main.o                    main.s:924
+    main.o                    main.s:924
+pushax (pushax.o):
+    mktime.o                  common/mktime.s:13
+    gettime.o                 cx16/gettime.s:10
+    callmain.o                runtime/callmain.s:11
+    _printf.o                 common/_printf.s:11
+    vcprintf.o                conio/vcprintf.s:8
+    pushw.o                   runtime/pushw.s:8
+    cprintf.o                 conio/cprintf.s:8
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_display.o             adapters/display/map_display.s:572
+    calendar.o                adapters/display/calendar.s:103
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    map_engine.o              core/map_engine.s:754
+    map_engine.o              core/map_engine.s:754
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+    main.o                    main.s:924
+pusheax (lpush.o):
+    mktime.o                  common/mktime.s:13
+    gettime.o                 cx16/gettime.s:10
+    _printf.o                 common/_printf.s:11
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+pushw0sp (pushwsp.o):
+    vsprintf.o                common/vsprintf.s:8
+pushwidx (pushw.o):
+    map_display.o             adapters/display/map_display.s:572
+regbank (zeropage.o):
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:14
+return0 (return0.o):
+    gettime.o                 cx16/gettime.s:10
+shlax1 (aslax1.o):
+    calendar_engine.o         core/calendar_engine.s:470
+shlax2 (aslax2.o):
+    ADSR.o                    adapters/psg/ADSR.s:397
+    map_display.o             adapters/display/map_display.s:572
+    calendar_engine.o         core/calendar_engine.s:470
+shlax3 (aslax3.o):
+    sprite.o                  adapters/display/sprite.s:563
+shlax4 (aslax4.o):
+    map_display.o             adapters/display/map_display.s:572
+    calendar_engine.o         core/calendar_engine.s:470
+shrax1 (shrax1.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    calendar_engine.o         core/calendar_engine.s:470
+shrax2 (shrax2.o):
+    mktime.o                  common/mktime.s:14
+shrax4 (shrax4.o):
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    sprite.o                  adapters/display/sprite.s:563
+    calendar_engine.o         core/calendar_engine.s:470
+shreax4 (shreax4.o):
+    calendar_engine.o         core/calendar_engine.s:470
+sp (zeropage.o):
+    memcpy.o                  common/memcpy.s:15
+    lsub.o                    runtime/lsub.s:12
+    ladd.o                    runtime/ladd.s:9
+    vsnprintf.o               common/vsnprintf.s:11
+    pushwsp.o                 runtime/pushwsp.s:8
+    lmul.o                    runtime/lmul.s:10
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:11
+    xor.o                     runtime/xor.s:10
+    vcprintf.o                conio/vcprintf.s:10
+    sub.o                     runtime/sub.s:9
+    steaxsp.o                 runtime/steaxsp.s:8
+    staxsp.o                  runtime/staxsp.s:8
+    sprintf.o                 common/sprintf.s:9
+    pushax.o                  runtime/pushax.s:8
+    pusha.o                   runtime/pusha.s:8
+    popptr1.o                 runtime/popptr1.s:9
+    popa.o                    runtime/popa.s:8
+    or.o                      runtime/or.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    lpush.o                   runtime/lpush.s:13
+    leaaxsp.o                 runtime/leaaxsp.s:8
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    ldaxsp.o                  runtime/ldaxsp.s:8
+    incsp2.o                  runtime/incsp2.s:8
+    incsp1.o                  runtime/incsp1.s:8
+    icmp.o                    runtime/icmp.s:9
+    decsp7.o                  runtime/decsp7.s:8
+    decsp6.o                  runtime/decsp6.s:8
+    decsp4.o                  runtime/decsp4.s:8
+    decsp3.o                  runtime/decsp3.s:8
+    decsp2.o                  runtime/decsp2.s:8
+    decsp1.o                  runtime/decsp1.s:8
+    crt0.o                    /Volumes/Zort/git/cc65/asminc/zeropage.inc:11
+    cprintf.o                 conio/cprintf.s:9
+    addysp.o                  runtime/addysp.s:8
+    add.o                     runtime/add.s:12
+    ADSR.o                    adapters/psg/ADSR.s:10
+    map_display.o             adapters/display/map_display.s:10
+    calendar.o                adapters/display/calendar.s:10
+    sprite.o                  adapters/display/sprite.s:10
+    map_engine.o              core/map_engine.s:10
+    calendar_engine.o         core/calendar_engine.s:10
+    ship.o                    core/ship.s:10
+    main.o                    main.s:10
+sreg (zeropage.o):
+    lsub.o                    runtime/lsub.s:12
+    lneg.o                    runtime/lneg.s:11
+    ladd.o                    runtime/ladd.s:9
+    divt.o                    common/divt.s:18
+    umod.o                    runtime/umod.s:9
+    tmcommon.o                cx16/tmcommon.s:9
+    steaxspi.o                runtime/steaxspi.s:10
+    mktime.o                  common/mktime.s:15
+    ltoa.o                    common/ltoa.s:11
+    lmul.o                    runtime/lmul.s:10
+    ldeaxi.o                  runtime/ldeaxi.s:8
+    axlong.o                  runtime/axlong.s:9
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:11
+    udiv.o                    runtime/udiv.s:10
+    time.o                    common/time.s:10
+    steaxsp.o                 runtime/steaxsp.s:8
+    shreax4.o                 runtime/shreax4.s:8
+    mod.o                     runtime/mod.s:12
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+    lpush.o                   runtime/lpush.s:13
+    ldeaxysp.o                runtime/ldeaxysp.s:12
+    icmp.o                    runtime/icmp.s:9
+    sprite.o                  adapters/display/sprite.s:10
+    calendar_engine.o         core/calendar_engine.s:10
+stax0sp (staxsp.o):
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+staxysp (staxsp.o):
+    vsprintf.o                common/vsprintf.s:8
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    ADSR.o                    adapters/psg/ADSR.s:397
+    main.o                    main.s:924
+steax0sp (steaxsp.o):
+    calendar_engine.o         core/calendar_engine.s:470
+steaxspidx (steaxspi.o):
+    gettime.o                 cx16/gettime.s:10
+tmp1 (zeropage.o):
+    ladd.o                    runtime/ladd.s:9
+    divt.o                    common/divt.s:18
+    steaxspi.o                runtime/steaxspi.s:10
+    shrax2.o                  runtime/shrax2.s:8
+    mul.o                     runtime/mul.s:10
+    ltoa.o                    common/ltoa.s:11
+    _printf.o                 /Volumes/Zort/git/cc65/asminc/zeropage.inc:13
+    xor.o                     runtime/xor.s:10
+    waitvsync.o               cx16/waitvsync.s:13
+    vcprintf.o                conio/vcprintf.s:10
+    time.o                    common/time.s:10
+    shreax4.o                 runtime/shreax4.s:8
+    shrax4.o                  runtime/shrax4.s:8
+    shrax1.o                  runtime/shrax1.s:8
+    shelp.o                   runtime/shelp.s:12
+    or.o                      runtime/or.s:10
+    mod.o                     runtime/mod.s:12
+    incaxy.o                  runtime/incaxy.s:8
+    div.o                     runtime/div.s:12
+    color.o                   cx16/color.s:11
+    c_setlfs.o                cbm/c_setlfs.s:13
+    asrax4.o                  runtime/asrax4.s:9
+    asrax1.o                  runtime/asrax1.s:8
+    aslax4.o                  runtime/aslax4.s:8
+    aslax3.o                  runtime/aslax3.s:8
+    aslax2.o                  runtime/aslax2.s:8
+    aslax1.o                  runtime/aslax1.s:8
+tmp2 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s:10
+    lmul.o                    runtime/lmul.s:10
+    time.o                    common/time.s:10
+    shelp.o                   runtime/shelp.s:12
+    div.o                     runtime/div.s:12
+tmp3 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s:10
+    mktime.o                  common/mktime.s:15
+    lmul.o                    runtime/lmul.s:10
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+tmp4 (zeropage.o):
+    lmul.o                    runtime/lmul.s:10
+    lumod.o                   runtime/lumod.s:10
+    ludiv.o                   runtime/ludiv.s:10
+tosaddax (add.o):
+    map_display.o             adapters/display/map_display.s:572
+tosaddeax (ladd.o):
+    mktime.o                  common/mktime.s:14
+tosdiva0 (div.o):
+    map_display.o             adapters/display/map_display.s:572
+    map_display.o             adapters/display/map_display.s:572
+tosdivax (div.o):
+    divt.o                    common/divt.s:17
+tosicmp (icmp.o):
+    main.o                    main.s:924
+tosicmp0 (icmp.o):
+    main.o                    main.s:924
+tosmoda0 (mod.o):
+    main.o                    main.s:924
+tosmul0ax (lmul.o):
+    gettime.o                 cx16/gettime.s:10
+tosmula0 (mul8.o):
+    ship.o                    core/ship.s:133
+tosora0 (or.o):
+    calendar_engine.o         core/calendar_engine.s:470
+tossubax (sub.o):
+    map_display.o             adapters/display/map_display.s:572
+tossubeax (lsub.o):
+    mktime.o                  common/mktime.s:14
+tosudiv0ax (ludiv.o):
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+tosudiveax (ludiv.o):
+    calendar_engine.o         core/calendar_engine.s:470
+tosumod0ax (lumod.o):
+    calendar_engine.o         core/calendar_engine.s:470
+    calendar_engine.o         core/calendar_engine.s:470
+tosumodax (umod.o):
+    mktime.o                  common/mktime.s:14
+tosumula0 (mul8.o):
+    main.o                    main.s:924
+tosumulax (mul.o):
+    mktime.o                  common/mktime.s:14
+tosumuleax (lmul.o):
+    mktime.o                  common/mktime.s:14
+tosxora0 (xor.o):
+    sprite.o                  adapters/display/sprite.s:563
+udiv16 (udiv.o):
+    umod.o                    runtime/umod.s:8
+    shelp.o                   runtime/shelp.s:11
+udiv32 (ludiv.o):
+    lumod.o                   runtime/lumod.s:9
+vsnprintf (vsnprintf.o):
+    vsprintf.o                common/vsprintf.s:9
+zerobss (zerobss.o):
+    crt0.o                    cx16/crt0.s:9
+

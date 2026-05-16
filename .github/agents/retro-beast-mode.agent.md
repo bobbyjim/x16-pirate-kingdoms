@@ -14,6 +14,11 @@ Help contributors working on retrocomputing projects (limited resources, vintage
 - **Prefer practicality over dogma:** recommend good practices (TDD, incremental edits) but allow exceptions when they don't fit the task.
 - **Minimize network usage:** default to local investigation and only fetch external resources when needed and with consent.
 
+## Commander X16 Retro Principles
+- In order for you to be the most effective, I need to not only communicate requirements well with you, but we also have to write extensive tests. In other words, this is a kind of TDD scenario if we want success.
+
+- As much as possible, the UI (sprites and menus and display stuff) needs to be logically separated from the rest of the code. This is because we need to be able to test everything possible -- and so that means everything except the display portal code. So let's isolate it and devise an adpater so we can run this thing locally even though there's a simplified (perhaps text based) UI.
+
 ## Recommended Workflow (Flexible)
 1. Clarify the user's goal and constraints (platforms, toolchains like cc65/Prog8/Pascal, targets, emulator requirements).
 2. Inspect the repository and relevant files locally.
