@@ -5,6 +5,7 @@
 #include "rng.h"
 #include "map.h"
 #include "settlement.h"
+#include "trade_link.h"
 #include "events.h"
 
 /* NOTE: World (and Map within it) is a flat, statically-sized struct with
@@ -15,6 +16,7 @@
    it will need to keep the map banked/streamed the way
    src-prototype1/map.c already does, rather than holding it flat. */
 #define MAX_SETTLEMENTS   256   /* matches src-prototype1's settlement_cache size */
+#define MAX_TRADE_LINKS   512   /* enough for sparse and dense route graphs */
 #define MAX_CASCADE_DEPTH 8     /* refugee-cascade recursion backstop */
 #define NEIGHBOR_RADIUS   20    /* tiles (Chebyshev) for influence + cascades */
 
@@ -25,7 +27,6 @@
    settlement's own dominant focus is already this committed, it's too set
    in its ways for outside influence to move it further. */
 #define CULTURE_INFLUENCE_CHANCE_PCT      25
-#define CULTURE_INFLUENCE_STRENGTH        1
 #define CULTURE_INFLUENCE_EXTREME_CEILING 200
 /* Per-settlement, per-tick chance of a random event isn't a fixed dial --
    it's a "weather system" that random-walks between two bounds, one step
@@ -34,14 +35,18 @@
    reacting to how the world is actually doing (a deliberate choice: an
    event chance that rises *because* settlements are thriving, or falls
    *because* they're struggling, starts to feel like a hand on the scale
-   rather than weather). Bounds stay conservative for the same reason
-   EVENT_CHANCE_PCT was kept low before: severity_roll()'s base severity
-   (~5-9) can exceed a freshly founded colony's entire stat pool (every
-   stat starts at 1), so settlements need real recovery time between hits
-   even at the harsh end of the walk. */
-#define EVENT_CHANCE_MIN   3
-#define EVENT_CHANCE_MAX   7
-#define EVENT_CHANCE_STEP  1    /* max drift per tick, toward either bound */
+   rather than weather).
+
+   Bumped from 3-7%/step 1 to 5-11%/step 2: with the structure-first model
+   giving settlements more to lose (up to MAX_STRUCTURE_SLOTS buildings,
+   not five 0-15 stats) and settlement_recover()'s regen/investment rolls
+   as the counterweight, the old bounds had gone soft -- this is the first
+   "put the thumbscrews to it" pass toward a harsher world; severity_roll()
+   in events.c and TRADE_LINK_HEALTH_DAMAGE in this file are the other
+   dials if events land often enough now but don't hurt enough per hit. */
+#define EVENT_CHANCE_MIN   5
+#define EVENT_CHANCE_MAX   11
+#define EVENT_CHANCE_STEP  2    /* max drift per tick, toward either bound */
 
 /* When a settlement collapses, refugees don't just strain a neighbor --
    per src-prototype1/README.md's "endless cycle" idea, some of the time
@@ -79,10 +84,55 @@
    without any explicit density math. */
 #define RESETTLE_RUIN_CHANCE_PCT 2
 
+/* Trade links per BUSINESS-LOGIC.md's "Inter-Settlement Trade Links"
+   section. Formation is a slow background drift (one candidate settlement
+   picked per tick, like RESETTLE_RUIN_CHANCE_PCT above), not an exhaustive
+   O(settlements^2) scan every tick -- world_load() additionally runs one
+   bootstrap pass over every settlement so a freshly loaded world isn't
+   silently disconnected for dozens of ticks. */
+#define TRADE_LINK_FORM_CHANCE_PCT      4   /* per-tick chance to attempt one new link */
+#define TRADE_LINK_REACH                40  /* max tile distance (Chebyshev) a link can span */
+
+/* Health (0-255) drives everything else: throughput is capacity scaled by
+   health/255, and status flags flip at TRADE_LINK_DISRUPTED_THRESHOLD.
+   Regen is the "improves gradually with stable use" half of the lifecycle;
+   TRADE_LINK_HEALTH_DAMAGE is the base hit from disrupt_links_for_
+   settlement() in world.c, blunted (not negated) by the hit settlement's
+   Defense posture (a Fort-heavy endpoint is harder to disrupt, not
+   immune).
+
+   Damage 30 / threshold 100 was too soft to matter: from full health
+   (255) a single hit barely dented the ACTIVE/DISRUPTED line, and
+   TRADE_LINK_HEALTH_REGEN's steady drip erased it again within a tick or
+   two, so a Pirates or Storm hit was nearly invisible downstream. Trade
+   links are meant to be the *external*, least-controllable risk in the
+   world (BUSINESS-LOGIC.md's "amplify settlement specialization instead
+   of flattening it" -- exposure should hurt), so damage is raised to a
+   fraction of full health and the threshold is raised well above what one
+   hit alone would clear: two hits without an intervening recovery window
+   now reliably knocks a link into DISRUPTED/RECOVERING, where throughput
+   (and the Commerce feed to both endpoints) actually suffers. Regen is
+   deliberately left alone here -- that's the separate "slower recovery"
+   lever, not this one. */
+#define TRADE_LINK_HEALTH_REGEN         4
+#define TRADE_LINK_HEALTH_DAMAGE        80
+#define TRADE_LINK_DISRUPTED_THRESHOLD  150
+#define TRADE_LINK_DEAD_ENDPOINT_TICKS  10  /* ticks a link may sit blocked on a dead endpoint before removal */
+
+/* Throughput (0-255, recomputed from health each tick) feeds or starves
+   both endpoints' Commerce-contributing structures a little each tick --
+   the "reduced throughput lowers reserve and wealth stability" and the
+   mutual-resilience effect of a thriving link repairing its endpoints. */
+#define TRADE_LINK_LOW_THROUGHPUT       60
+#define TRADE_LINK_HIGH_THROUGHPUT      180
+#define TRADE_LINK_ENDPOINT_EFFECT      1
+
 typedef struct {
     Map map;
     Settlement settlements[MAX_SETTLEMENTS];
     word settlement_count;
+   TradeLink trade_links[MAX_TRADE_LINKS];
+   word trade_link_count;
     unsigned long tick;
     Rng rng;
     byte event_chance_pct; /* current position of the event-chance random walk */
@@ -96,9 +146,23 @@ void world_init_empty(World *w, unsigned long seed);
 
 Settlement *world_get_settlement(World *w, byte id); /* NULL if id out of range */
 
-/* Advances the simulation by one tick: neighbor cultural influence, then a
-   per-settlement chance of a random event (with weakness-driven severity
-   and refugee cascades on collapse). */
+/* Minimal trade-link management API (schema only, no routing behavior).
+   IDs are table indices (0..trade_link_count-1). */
+TradeLink *world_get_trade_link(World *w, word id); /* NULL if id out of range */
+TradeLink *world_create_trade_link(World *w,
+                                   byte type,
+                                   byte from_settlement_id,
+                                   byte to_settlement_id,
+                                   byte owner_or_controller,
+                                   byte path_cost,
+                                   byte range_or_distance); /* NULL if full/invalid */
+void world_disable_trade_link(World *w, word id);
+
+/* Advances the simulation by one tick: neighbor cultural influence, trade
+   link formation and maintenance (see trade_link.h), then a per-settlement
+   chance of a random event (with weakness-driven severity, refugee
+   cascades on collapse, and reactive trade-link disruption at the
+   affected endpoint). */
 void world_tick(World *w);
 
 /* Forces `type` onto settlement `id` immediately, running the same

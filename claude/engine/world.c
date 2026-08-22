@@ -2,6 +2,7 @@
 #include "world.h"
 
 static void apply_event_with_cascade(World *w, Settlement *s, EventType type, int depth);
+static void disrupt_links_for_settlement(World *w, const Settlement *s, EventType type);
 
 /* Collects up to max_out *alive* settlements (excluding `self`) within
    NEIGHBOR_RADIUS tiles, searched directly over the live settlement table
@@ -26,6 +27,83 @@ static int nearby_alive(World *w, const Settlement *self, byte radius, Settlemen
     return found;
 }
 
+static byte chebyshev_distance(byte ax, byte ay, byte bx, byte by)
+{
+    byte dx = (ax > bx) ? (byte)(ax - bx) : (byte)(bx - ax);
+    byte dy = (ay > by) ? (byte)(ay - by) : (byte)(by - ay);
+    return (dx > dy) ? dx : dy;
+}
+
+/* True if any recorded link (in either direction, any lifecycle state)
+   already connects `a` and `b` -- keeps formation from stacking duplicate
+   routes on the same pair. */
+static byte settlements_linked(const World *w, byte a, byte b)
+{
+    word i;
+    for (i = 0; i < w->trade_link_count; i++) {
+        const TradeLink *l = &w->trade_links[i];
+        if ((l->from_settlement_id == a && l->to_settlement_id == b) ||
+            (l->from_settlement_id == b && l->to_settlement_id == a)) return 1;
+    }
+    return 0;
+}
+
+/* Swap-pop removal, matching the settlement table's own reuse pattern --
+   keeps link_id in sync with its new index. */
+static void remove_trade_link(World *w, word idx)
+{
+    word last = w->trade_link_count - 1;
+    if (idx != last) {
+        w->trade_links[idx] = w->trade_links[last];
+        w->trade_links[idx].link_id = (byte)idx;
+    }
+    w->trade_link_count--;
+}
+
+/* Tries to link `a` to one nearby, trade-compatible settlement it isn't
+   already linked to -- "sufficient trade compatibility and reach" per
+   BUSINESS-LOGIC.md is read as: both ends have at least some Commerce
+   built, and are within TRADE_LINK_REACH tiles. A Fleet link needs port
+   access (a Dock) at both ends; otherwise it's a Caravan. Used both to
+   bootstrap connectivity at world_load() and as the per-tick formation
+   roll in world_tick(). */
+static void try_link_settlement(World *w, Settlement *a)
+{
+    Settlement *neighbors[4];
+    int count, i;
+
+    if (!a->alive || settlement_wealth_potential(a) == 0) return;
+    if (w->trade_link_count >= MAX_TRADE_LINKS) return;
+
+    count = nearby_alive(w, a, TRADE_LINK_REACH, neighbors, 4);
+    for (i = 0; i < count; i++) {
+        Settlement *b = neighbors[i];
+        byte dist, type;
+
+        if (settlement_wealth_potential(b) == 0) continue;
+        if (settlements_linked(w, a->id, b->id)) continue;
+
+        dist = chebyshev_distance(a->x, a->y, b->x, b->y);
+        type = (settlement_has_structure(a, STRUCT_DOCK) && settlement_has_structure(b, STRUCT_DOCK))
+               ? TRADE_LINK_FLEET : TRADE_LINK_CARAVAN;
+        world_create_trade_link(w, type, a->id, b->id, a->owner, dist, dist);
+        return; /* one new link per candidate per call */
+    }
+}
+
+/* One formation roll per tick, on one random settlement -- deliberately
+   not an O(settlements^2) scan every tick (see world.h). */
+static void step_trade_link_formation(World *w)
+{
+    word idx;
+
+    if (w->settlement_count == 0) return;
+    if (rng_range(&w->rng, 100) >= TRADE_LINK_FORM_CHANCE_PCT) return;
+
+    idx = rng_range(&w->rng, w->settlement_count);
+    try_link_settlement(w, &w->settlements[idx]);
+}
+
 int world_load(World *w, const char *map_path, unsigned long seed)
 {
     word i, obj_count;
@@ -33,6 +111,7 @@ int world_load(World *w, const char *map_path, unsigned long seed)
     rng_seed(&w->rng, seed);
     w->tick = 0;
     w->settlement_count = 0;
+    w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
 
     if (map_load(&w->map, map_path) != 0) return -1;
@@ -40,25 +119,35 @@ int world_load(World *w, const char *map_path, unsigned long seed)
     obj_count = map_object_count(&w->map);
     for (i = 0; i < obj_count && w->settlement_count < MAX_SETTLEMENTS; i++) {
         MapObject obj;
-        byte size, population, wealth, reserves, infrastructure, defense;
+        byte size, capacity, extra, k;
         Settlement *s;
 
         map_get_object(&w->map, i, &obj);
         if (obj.type != OBJ_SETTLEMENT) continue;
 
         /* Object size byte ranges roughly 20-139 per WORLD-CREATION.md;
-           scale into the engine's 0-15 stat range. */
+           scale into slot capacity (1..MAX_STRUCTURE_SLOTS) and how many
+           of those slots start built. */
         size = obj.data[0];
-        population = (byte)((word)size * STAT_MAX / 139);
-        wealth = (byte)(population > 2 ? population - 2 + rng_range(&w->rng, 3) : rng_range(&w->rng, 3));
-        reserves = (byte)(rng_range(&w->rng, STAT_MAX + 1));
-        infrastructure = (byte)((population + rng_range(&w->rng, STAT_MAX + 1)) / 2);
-        defense = (byte)(rng_range(&w->rng, STAT_MAX + 1));
+        capacity = (byte)(1 + (word)size * (MAX_STRUCTURE_SLOTS - 1) / 139);
 
         s = &w->settlements[w->settlement_count];
-        settlement_init(s, (byte)w->settlement_count, obj.x, obj.y, /*owner=*/0,
-                         population, wealth, reserves, infrastructure, defense);
+        settlement_init(s, (byte)w->settlement_count, obj.x, obj.y, /*owner=*/0, capacity);
+        settlement_build(s, STRUCT_TOWNHALL); /* every settlement starts with a civic anchor */
+
+        extra = (byte)((word)capacity * size / 139);
+        for (k = 0; k < extra && k + 1 < capacity; k++) {
+            settlement_build(s, (StructureType)rng_range(&w->rng, STRUCT_TYPE_COUNT));
+        }
+
         w->settlement_count++;
+    }
+
+    /* Bootstrap pass: without this, a freshly loaded world would sit
+       disconnected for dozens of ticks waiting on step_trade_link_
+       formation()'s slow per-tick roll. */
+    for (i = 0; i < w->settlement_count; i++) {
+        try_link_settlement(w, &w->settlements[i]);
     }
 
     w->initial_settlement_count = w->settlement_count;
@@ -70,6 +159,7 @@ void world_init_empty(World *w, unsigned long seed)
     rng_seed(&w->rng, seed);
     w->tick = 0;
     w->settlement_count = 0;
+    w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
     w->initial_settlement_count = 0; /* no colonize_chance() boost until set explicitly */
     map_init_empty(&w->map);
@@ -79,6 +169,61 @@ Settlement *world_get_settlement(World *w, byte id)
 {
     if (id >= w->settlement_count) return NULL;
     return &w->settlements[id];
+}
+
+TradeLink *world_get_trade_link(World *w, word id)
+{
+    if (id >= w->trade_link_count) return NULL;
+    return &w->trade_links[id];
+}
+
+TradeLink *world_create_trade_link(World *w,
+                                   byte type,
+                                   byte from_settlement_id,
+                                   byte to_settlement_id,
+                                   byte owner_or_controller,
+                                   byte path_cost,
+                                   byte range_or_distance)
+{
+    TradeLink *l;
+
+    if (w->trade_link_count >= MAX_TRADE_LINKS) return NULL;
+    if (from_settlement_id >= w->settlement_count) return NULL;
+    if (to_settlement_id >= w->settlement_count) return NULL;
+    if (from_settlement_id == to_settlement_id) return NULL;
+    if (type != TRADE_LINK_CARAVAN && type != TRADE_LINK_FLEET) return NULL;
+
+    l = &w->trade_links[w->trade_link_count];
+    l->link_id = (byte)w->trade_link_count;
+    l->type = type;
+    l->from_settlement_id = from_settlement_id;
+    l->to_settlement_id = to_settlement_id;
+    l->status_flags = TRADE_LINK_ACTIVE;
+
+    /* Neutral starting defaults; future simulation layers tune these. */
+    l->health = 200;
+    l->throughput = 64;
+    l->risk = 32;
+    l->path_cost = path_cost;
+    l->range_or_distance = range_or_distance;
+    l->owner_or_controller = owner_or_controller;
+    l->last_event_tag = TRADE_LINK_EVENT_NONE;
+    l->cooldown_or_recovery = 0;
+    l->reserved_a = 0;
+    l->reserved_b = 0;
+    l->reserved_c = 0;
+
+    w->trade_link_count++;
+    return l;
+}
+
+void world_disable_trade_link(World *w, word id)
+{
+    TradeLink *l = world_get_trade_link(w, id);
+    if (!l) return;
+
+    l->status_flags &= (byte)~TRADE_LINK_ACTIVE;
+    l->status_flags |= TRADE_LINK_DISRUPTED;
 }
 
 /* Returns a Settlement slot for a new civil-war faction or refugee colony
@@ -106,34 +251,32 @@ static Settlement *allocate_settlement_slot(World *w, const Settlement *exclude)
     return NULL;
 }
 
-/* Splits `parent` into two on a civil-war defense collapse: the parent
-   keeps half its remaining resources, a new AGR-leaning faction settlement
-   is created nearby with the other half. No-op if there's no room left in
-   the settlement table (static array, no heap -- see world.h). */
+/* Splits `parent` into two on a civil-war defense collapse: the parent's
+   surviving structures are left half-condition (stressed and depleted by
+   the split), and a new faction settlement is created nearby, armed but
+   institutionally bare -- a single, freshly-seized Fort at low condition,
+   which settlement_culture_vector() reads as AGR (stressed) rather than
+   SEC (stable). No-op if there's no room left in the settlement table
+   (static array, no heap -- see world.h). */
 static void spawn_faction(World *w, Settlement *parent)
 {
     Settlement *child;
-    byte pop_half, wealth_half, reserves_half, infra_half, def_half;
+    byte i;
+    int slot;
 
     child = allocate_settlement_slot(w, parent);
     if (!child) return;
 
-    pop_half = settlement_get_stat(parent, STAT_POPULATION) / 2;
-    wealth_half = settlement_get_stat(parent, STAT_WEALTH) / 2;
-    reserves_half = settlement_get_stat(parent, STAT_RESERVES) / 2;
-    infra_half = settlement_get_stat(parent, STAT_INFRASTRUCTURE) / 2;
-    def_half = settlement_get_stat(parent, STAT_DEFENSE) / 2;
-
-    settlement_add_stat(parent, STAT_POPULATION, -pop_half);
-    settlement_add_stat(parent, STAT_WEALTH, -wealth_half);
-    settlement_add_stat(parent, STAT_RESERVES, -reserves_half);
-    settlement_add_stat(parent, STAT_INFRASTRUCTURE, -infra_half);
-    settlement_add_stat(parent, STAT_DEFENSE, -def_half);
+    for (i = 0; i < MAX_STRUCTURE_SLOTS; i++) {
+        if (parent->structures[i].type != STRUCT_EMPTY) {
+            settlement_damage_slot(parent, i, -(int)(parent->structures[i].condition / 2));
+        }
+    }
 
     settlement_init(child, (byte)(child - w->settlements), parent->x, parent->y, parent->owner,
-                     pop_half, wealth_half, reserves_half, infra_half, def_half);
-    /* Aggressive splinter faction: push its culture hard toward AGR. */
-    settlement_shift_culture(child, CULTURE_AGR, 160);
+                     parent->capacity);
+    slot = settlement_build(child, STRUCT_FORT);
+    if (slot >= 0) settlement_damage_slot(child, (byte)slot, -(STAT_MAX - 3)); /* leave it stressed */
 }
 
 /* Straining an already-fragile neighbor can push it over the edge too;
@@ -141,11 +284,8 @@ static void spawn_faction(World *w, Settlement *parent)
 static byte apply_refugee_strain(Settlement *neighbor, Rng *rng)
 {
     int strain = 2 + (int)rng_range(rng, 3);
-    settlement_add_stat(neighbor, STAT_RESERVES, -strain);
-    settlement_add_stat(neighbor, STAT_WEALTH, -(strain / 2));
-    /* Refugees also crowd the settlement, but only ever help population;
-       the strain is what threatens it. */
-    settlement_add_stat(neighbor, STAT_POPULATION, -(strain / 3));
+    settlement_damage_characteristic(neighbor, CHAR_INDUSTRY, strain);
+    settlement_damage_characteristic(neighbor, CHAR_COMMERCE, strain / 2 > 0 ? strain / 2 : 1);
     return settlement_is_collapsed(neighbor);
 }
 
@@ -170,8 +310,17 @@ static byte tile_far_enough_from_settlements(World *w, byte x, byte y)
     return 1;
 }
 
+/* Founds the smallest possible viable settlement at (x,y): capacity 2, one
+   civic anchor built. Shared by refugee colonization and ambient
+   resettlement -- both want the same fragile-encampment starting point. */
+static void found_encampment(Settlement *s, byte id, byte x, byte y, byte owner)
+{
+    settlement_init(s, id, x, y, owner, 2);
+    settlement_build(s, STRUCT_TOWNHALL);
+}
+
 /* Searches near (near_x,near_y) for open, non-water land far enough from
-   existing settlements and, if found, founds a brand-new one-population
+   existing settlements and, if found, founds a brand-new fragile
    encampment there. Silently gives up after COLONIZE_MAX_ATTEMPTS (no
    land found) or if the settlement table is full -- refugees are lost or
    absorbed elsewhere instead. */
@@ -197,7 +346,7 @@ static void try_found_colony(World *w, const Settlement *fallen, byte owner, byt
         {
             Settlement *colony = allocate_settlement_slot(w, fallen);
             if (!colony) return; /* table genuinely full */
-            settlement_init(colony, (byte)(colony - w->settlements), x, y, owner, 1, 1, 1, 1, 1);
+            found_encampment(colony, (byte)(colony - w->settlements), x, y, owner);
         }
         return;
     }
@@ -267,6 +416,7 @@ static void apply_event_with_cascade(World *w, Settlement *s, EventType type, in
     if (!s->alive) return;
 
     event_apply(s, type, &w->rng, &result);
+    disrupt_links_for_settlement(w, s, type);
 
     if (result.spawned_faction) {
         spawn_faction(w, s);
@@ -316,7 +466,109 @@ static void step_ambient_resettlement(World *w)
     slot = &w->settlements[idx];
     if (slot->alive) return;
 
-    settlement_init(slot, (byte)idx, slot->x, slot->y, slot->owner, 1, 1, 1, 1, 1);
+    found_encampment(slot, (byte)idx, slot->x, slot->y, slot->owner);
+}
+
+/* Per-tick maintenance for every recorded link: a dead endpoint blocks the
+   link and accumulates TRADE_LINK_DEAD_ENDPOINT_TICKS before the link is
+   removed outright (per BUSINESS-LOGIC.md's "removed if both endpoints are
+   invalid or route viability is lost long-term"); otherwise health
+   regenerates a little (faster with Town Hall/Monument "cohesion and
+   trust" -- CHAR_CULTURE -- at either end, per the Link Capacity and
+   Specialization section), throughput and lifecycle flags are recomputed
+   from the resulting health, and that throughput feeds or starves both
+   endpoints' Commerce-contributing structures. Reactive disruption from a
+   specific event lives in disrupt_links_for_settlement() below, applied
+   during the same tick's settlement loop -- its effect on throughput
+   shows up here on the *next* tick, an acceptable lag for a route-health
+   aggregate rather than a unit-level simulation. */
+static void step_trade_link_maintenance(World *w)
+{
+    word i = 0;
+
+    while (i < w->trade_link_count) {
+        TradeLink *l = &w->trade_links[i];
+        Settlement *from = world_get_settlement(w, l->from_settlement_id);
+        Settlement *to = world_get_settlement(w, l->to_settlement_id);
+        byte removed = 0;
+
+        if (!from || !to || !from->alive || !to->alive) {
+            l->status_flags &= (byte)~(TRADE_LINK_ACTIVE | TRADE_LINK_RECOVERING);
+            l->status_flags |= (TRADE_LINK_BLOCKED | TRADE_LINK_DISRUPTED);
+            if (l->cooldown_or_recovery < 255) l->cooldown_or_recovery++;
+            if (l->cooldown_or_recovery >= TRADE_LINK_DEAD_ENDPOINT_TICKS) {
+                remove_trade_link(w, i);
+                removed = 1;
+            }
+        } else {
+            word commerce_avg = (settlement_wealth_potential(from) + settlement_wealth_potential(to)) / 2;
+            byte persistence_avg = (byte)((settlement_characteristic(from, CHAR_CULTURE) +
+                                            settlement_characteristic(to, CHAR_CULTURE)) / 2);
+            word base_capacity = commerce_avg * 2;
+            int regen = TRADE_LINK_HEALTH_REGEN + persistence_avg / 16;
+            int newhealth = (int)l->health + regen;
+
+            if (base_capacity > 255) base_capacity = 255;
+            if (newhealth > 255) newhealth = 255;
+            l->health = (byte)newhealth;
+            l->cooldown_or_recovery = 0; /* only accumulates while an endpoint is dead */
+
+            l->status_flags &= (byte)~TRADE_LINK_BLOCKED;
+            if (l->health >= TRADE_LINK_DISRUPTED_THRESHOLD) {
+                l->status_flags &= (byte)~(TRADE_LINK_DISRUPTED | TRADE_LINK_RECOVERING);
+                l->status_flags |= TRADE_LINK_ACTIVE;
+            } else {
+                l->status_flags &= (byte)~TRADE_LINK_ACTIVE;
+                l->status_flags |= TRADE_LINK_RECOVERING;
+            }
+
+            l->throughput = (byte)(base_capacity * l->health / 255);
+            l->risk = (byte)(255 - l->health); /* inverse of health, for UI/inspection */
+
+            if (l->throughput < TRADE_LINK_LOW_THROUGHPUT) {
+                settlement_damage_characteristic(from, CHAR_COMMERCE, TRADE_LINK_ENDPOINT_EFFECT);
+                settlement_damage_characteristic(to, CHAR_COMMERCE, TRADE_LINK_ENDPOINT_EFFECT);
+            } else if (l->throughput > TRADE_LINK_HIGH_THROUGHPUT) {
+                settlement_repair_characteristic(from, CHAR_COMMERCE, TRADE_LINK_ENDPOINT_EFFECT);
+                settlement_repair_characteristic(to, CHAR_COMMERCE, TRADE_LINK_ENDPOINT_EFFECT);
+            }
+        }
+
+        if (!removed) i++;
+    }
+}
+
+/* Reactive half of link disruption: called right after `s` suffers
+   `type` (see apply_event_with_cascade), this hits every link touching
+   `s` that the event is hazardous to -- Fleet links fear Pirates and
+   Storm (open water, exposed docks); Caravan links fear Storm and Civil
+   War (terrain friction, inland conflict) -- per BUSINESS-LOGIC.md's Link
+   Consequence Model. A Fort-heavy settlement blunts the hit ("harder to
+   disrupt" per the Link Capacity and Specialization section). */
+static void disrupt_links_for_settlement(World *w, const Settlement *s, EventType type)
+{
+    word i;
+    byte hits_fleet = (byte)(type == EVENT_PIRATES || type == EVENT_STORM);
+    byte hits_caravan = (byte)(type == EVENT_STORM || type == EVENT_CIVIL_WAR);
+
+    if (!hits_fleet && !hits_caravan) return;
+
+    for (i = 0; i < w->trade_link_count; i++) {
+        TradeLink *l = &w->trade_links[i];
+        int damage;
+
+        if (l->from_settlement_id != s->id && l->to_settlement_id != s->id) continue;
+        if ((l->type == TRADE_LINK_FLEET && !hits_fleet) ||
+            (l->type == TRADE_LINK_CARAVAN && !hits_caravan)) continue;
+
+        damage = TRADE_LINK_HEALTH_DAMAGE - (int)(settlement_defense_posture(s) / 8);
+        if (damage < 1) damage = 1;
+
+        l->health = (l->health > (byte)damage) ? (byte)(l->health - damage) : 0;
+        l->status_flags &= (byte)~(TRADE_LINK_ACTIVE | TRADE_LINK_RECOVERING);
+        l->status_flags |= TRADE_LINK_DISRUPTED;
+        l->last_event_tag = (byte)type;
+    }
 }
 
 void world_tick(World *w)
@@ -326,6 +578,8 @@ void world_tick(World *w)
 
     step_event_weather(w);
     step_ambient_resettlement(w);
+    step_trade_link_formation(w);
+    step_trade_link_maintenance(w);
 
     for (i = 0; i < settlement_count_at_start; i++) {
         Settlement *s = &w->settlements[i];
@@ -340,11 +594,13 @@ void world_tick(World *w)
            doesn't inevitably flatten to one focus at 255 with the rest at
            0. */
         count = nearby_alive(w, s, NEIGHBOR_RADIUS, neighbors, 4);
-        if (count > 0 &&
-            s->culture[settlement_dominant_focus(s)] < CULTURE_INFLUENCE_EXTREME_CEILING &&
-            rng_range(&w->rng, 100) < CULTURE_INFLUENCE_CHANCE_PCT) {
-            CultureFocus dominant = settlement_dominant_focus(neighbors[0]);
-            settlement_shift_culture(s, dominant, CULTURE_INFLUENCE_STRENGTH);
+        if (count > 0 && rng_range(&w->rng, 100) < CULTURE_INFLUENCE_CHANCE_PCT) {
+            byte culture[CULTURE_COUNT];
+            settlement_culture_vector(s, culture);
+            if (culture[settlement_dominant_focus(s)] < CULTURE_INFLUENCE_EXTREME_CEILING) {
+                CultureFocus dominant = settlement_dominant_focus(neighbors[0]);
+                settlement_nudge_focus(s, dominant);
+            }
         }
 
         /* Natural recovery, then a random event roll -- decline has a

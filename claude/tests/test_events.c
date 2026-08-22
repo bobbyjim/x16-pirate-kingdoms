@@ -5,8 +5,10 @@
 
 static int culture_sum(const Settlement *s)
 {
+    byte v[CULTURE_COUNT];
     int i, sum = 0;
-    for (i = 0; i < CULTURE_COUNT; i++) sum += s->culture[i];
+    settlement_culture_vector(s, v);
+    for (i = 0; i < CULTURE_COUNT; i++) sum += v[i];
     return sum;
 }
 
@@ -22,61 +24,71 @@ void run_events_tests(void)
     CHECK(event_from_name("nonsense") == -1);
     CHECK(strcmp(event_name(EVENT_DROUGHT), "drought") == 0);
 
-    /* weakness exploitation: a settlement with a low tested-stat and a low
-       mitigating focus should take at least as much damage as one with
-       high stat + high focus, given the same rng sequence. Defense starts
-       mid-range (not 0) on both sides so the 0-floor doesn't mask the
-       comparison. */
-    settlement_init(&weak, 0, 0, 0, 0, /*pop*/10, /*wealth*/10, /*reserves*/0, /*infra*/10, /*defense*/5);
-    settlement_shift_culture(&weak, CULTURE_SEC, -weak.culture[CULTURE_SEC]); /* drive SEC toward 0 */
+    /* weakness exploitation: a settlement whose Fort is barely holding on
+       (low condition, low SEC) should take at least as much damage from
+       Pirates as one with a healthy Fort and high SEC, given the same rng
+       sequence. */
+    settlement_init(&weak, 0, 0, 0, 0, 3);
+    settlement_build(&weak, STRUCT_FORT);
+    settlement_damage_slot(&weak, 0, -10); /* condition 5, stressed -> low SEC */
 
-    settlement_init(&strong, 1, 0, 0, 0, /*pop*/10, /*wealth*/10, /*reserves*/15, /*infra*/10, /*defense*/15);
-    settlement_shift_culture(&strong, CULTURE_SEC, 255 - strong.culture[CULTURE_SEC]); /* drive SEC toward max */
+    settlement_init(&strong, 1, 0, 0, 0, 3);
+    settlement_build(&strong, STRUCT_FORT); /* full condition -> healthy, high SEC */
 
     rng_seed(&rng_a, 42);
     rng_seed(&rng_b, 42);
 
     {
-        byte weak_defense_before = settlement_get_stat(&weak, STAT_DEFENSE);
-        byte strong_defense_before = settlement_get_stat(&strong, STAT_DEFENSE);
+        byte weak_defense_before = weak.structures[0].condition;
+        byte strong_defense_before = strong.structures[0].condition;
         byte weak_defense_after, strong_defense_after;
         int weak_damage, strong_damage;
 
         event_apply(&weak, EVENT_PIRATES, &rng_a, &result);
         event_apply(&strong, EVENT_PIRATES, &rng_b, &result);
 
-        weak_defense_after = settlement_get_stat(&weak, STAT_DEFENSE);
-        strong_defense_after = settlement_get_stat(&strong, STAT_DEFENSE);
+        weak_defense_after = (weak.structures[0].type == STRUCT_EMPTY) ? 0 : weak.structures[0].condition;
+        strong_defense_after = (strong.structures[0].type == STRUCT_EMPTY) ? 0 : strong.structures[0].condition;
 
         weak_damage = weak_defense_before - weak_defense_after;
         strong_damage = strong_defense_before - strong_defense_after;
 
         CHECK(weak_damage >= strong_damage);
-        CHECK(weak_defense_after <= STAT_MAX && weak_defense_after >= STAT_MIN);
-        CHECK(strong_defense_after <= STAT_MAX && strong_defense_after >= STAT_MIN);
+        CHECK(weak_defense_after <= STAT_MAX);
+        CHECK(strong_defense_after <= STAT_MAX);
     }
 
-    /* stats/culture invariants hold across every event type */
+    /* culture vector invariant holds across every event type, and every
+       slot's condition stays in range afterward */
     for (i = 0; i < EVENT_COUNT; i++) {
         Settlement s;
         Rng rng;
-        int f;
+        byte j;
 
-        settlement_init(&s, (byte)i, 0, 0, 0, 8, 8, 8, 8, 8);
+        settlement_init(&s, (byte)i, 0, 0, 0, MAX_STRUCTURE_SLOTS);
+        settlement_build(&s, STRUCT_DOCK);
+        settlement_build(&s, STRUCT_WAREHOUSE);
+        settlement_build(&s, STRUCT_FORT);
+        settlement_build(&s, STRUCT_TOWNHALL);
+        settlement_build(&s, STRUCT_MONUMENT);
+
         rng_seed(&rng, (unsigned long)(i + 1));
         event_apply(&s, (EventType)i, &rng, &result);
 
-        for (f = 0; f < STAT_COUNT; f++) {
-            byte v = settlement_get_stat(&s, (StatField)f);
-            CHECK(v <= STAT_MAX);
+        for (j = 0; j < MAX_STRUCTURE_SLOTS; j++) {
+            if (s.structures[j].type == STRUCT_EMPTY) continue;
+            CHECK(s.structures[j].condition <= STAT_MAX);
         }
         CHECK(culture_sum(&s) == CULTURE_VECTOR_SUM);
         CHECK(s.event_status == (byte)i);
     }
 
-    /* civil war: driving defense to 0 with population > 1 signals a split */
-    settlement_init(&weak, 2, 0, 0, 0, /*pop*/10, 5, 5, 5, /*defense*/0);
-    settlement_shift_culture(&weak, CULTURE_SEC, -weak.culture[CULTURE_SEC]);
+    /* civil war: destroying the only Fort (defense posture -> 0) while a
+       Town Hall still stands (population support > 0) signals a split */
+    settlement_init(&weak, 2, 0, 0, 0, 3);
+    settlement_build(&weak, STRUCT_FORT);
+    settlement_build(&weak, STRUCT_TOWNHALL);
+    settlement_damage_slot(&weak, 0, -(STAT_MAX - 1)); /* Fort at condition 1: one hit from gone */
     rng_seed(&rng_a, 7);
     event_apply(&weak, EVENT_CIVIL_WAR, &rng_a, &result);
     CHECK(result.spawned_faction == 1);

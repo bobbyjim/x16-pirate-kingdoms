@@ -23,15 +23,44 @@ static int focus_from_name(const char *name)
     return -1;
 }
 
+static const char *STRUCT_NAMES[STRUCT_TYPE_COUNT] = {
+    "dock", "warehouse", "fort", "townhall", "monument"
+};
+
+static int struct_type_from_name(const char *name)
+{
+    int i;
+    for (i = 0; i < STRUCT_TYPE_COUNT; i++) {
+        if (strcasecmp(name, STRUCT_NAMES[i]) == 0) return i;
+    }
+    return -1;
+}
+
 static void print_settlement(const Settlement *s)
 {
-    printf("#%-3u (%3u,%3u) %s  pop=%2u wealth=%2u reserves=%2u infra=%2u def=%2u  "
-           "culture[TRA=%3u AGR=%3u GRO=%3u SEC=%3u]  event=%s\n",
+    byte culture[CULTURE_COUNT];
+    byte i;
+
+    settlement_culture_vector(s, culture);
+
+//    printf("#%-3u (%3u,%3u) %s  pop=%3u wealth=%3u reserve=%3u infra=%2u def=%3u  "
+//           "culture[TRA=%3u AGR=%3u GRO=%3u SEC=%3u]  event=%s\n",
+      printf("#%-3u (%3u,%3u) %s %3u %3u %3u %3u %3u "
+           "%3u %3u %3u %3u %-12s : ",
            s->id, s->x, s->y, s->alive ? "alive" : "DEAD ",
-           s->population, s->wealth, s->reserves, s->infrastructure, s->defense,
-           s->culture[CULTURE_TRA], s->culture[CULTURE_AGR],
-           s->culture[CULTURE_GRO], s->culture[CULTURE_SEC],
+           settlement_population_support(s), settlement_wealth_potential(s),
+           settlement_reserve_potential(s), settlement_infrastructure_resilience(s),
+           settlement_defense_posture(s),
+           culture[CULTURE_TRA], culture[CULTURE_AGR], culture[CULTURE_GRO], culture[CULTURE_SEC],
            s->event_status == EVENT_STATUS_NONE ? "-" : event_name((EventType)s->event_status));
+
+//    printf("    structures (capacity %u):", s->capacity);
+    for (i = 0; i < MAX_STRUCTURE_SLOTS; i++) {
+        if (s->structures[i].type == STRUCT_EMPTY || s->structures[i].type >= STRUCT_TYPE_COUNT) continue;
+//        printf(" [%u]%s@%u", i, STRUCT_NAMES[s->structures[i].type], s->structures[i].condition);
+        printf(" %c.%x", STRUCT_NAMES[s->structures[i].type][0]-32, s->structures[i].condition);
+    }
+    printf("\n");
 }
 
 static void cmd_load(const char *path)
@@ -45,10 +74,16 @@ static void cmd_load(const char *path)
     printf("loaded %s: %u settlement(s), seed=%lu\n", path, world.settlement_count, seed);
 }
 
+static void print_settlement_header() {
+    puts("#ID  (xxx,yyy) stats pop wea res inf def TRA AGR GRO SEC event   structures                        ");
+    puts("---------------------------------------------------------------------------------------------------");
+}
+
 static void cmd_list(void)
 {
     word i;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    print_settlement_header();
     for (i = 0; i < world.settlement_count; i++) print_settlement(&world.settlements[i]);
 }
 
@@ -56,6 +91,7 @@ static void cmd_show(byte id)
 {
     Settlement *s = world_get_settlement(&world, id);
     if (!s) { printf("no such settlement #%u\n", id); return; }
+    print_settlement_header();
     print_settlement(s);
 }
 
@@ -70,14 +106,21 @@ static void cmd_tick(int n)
 
 static void cmd_status(void)
 {
-    word i, alive = 0;
+    word i, alive = 0, links_active = 0, links_disrupted = 0;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
     for (i = 0; i < world.settlement_count; i++) {
         if (world.settlements[i].alive) alive++;
     }
-    printf("tick=%lu  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n",
+    for (i = 0; i < world.trade_link_count; i++) {
+        byte flags = world.trade_links[i].status_flags;
+        if (flags & TRADE_LINK_ACTIVE) links_active++;
+        if (flags & TRADE_LINK_DISRUPTED) links_disrupted++;
+    }
+    printf("tick=%lu  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
+           "trade links=%u (%u active, %u disrupted)\n",
            world.tick, alive, world.settlement_count, world.initial_settlement_count,
-           world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX);
+           world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX,
+           world.trade_link_count, links_active, links_disrupted);
 }
 
 static void cmd_event(const char *event_name_arg, byte id)
@@ -89,17 +132,62 @@ static void cmd_event(const char *event_name_arg, byte id)
     if (!world_get_settlement(&world, id)) { printf("no such settlement #%u\n", id); return; }
     world_force_event(&world, id, (EventType)type);
     printf("applied %s to #%u:\n", event_name(type), id);
+    print_settlement_header();
     print_settlement(world_get_settlement(&world, id));
 }
 
-static void cmd_setfocus(byte id, const char *focus_arg, int value)
+static void cmd_build(byte id, const char *type_arg)
+{
+    Settlement *s = world_get_settlement(&world, id);
+    int type;
+    int slot;
+    if (!s) { printf("no such settlement #%u\n", id); return; }
+    type = struct_type_from_name(type_arg);
+    if (type < 0) { printf("unknown structure '%s' (use dock/warehouse/fort/townhall/monument)\n", type_arg); return; }
+    slot = settlement_build(s, (StructureType)type);
+    if (slot < 0) { printf("no empty slot within capacity\n"); return; }
+    print_settlement_header();
+    print_settlement(s);
+}
+
+static const char *link_type_name(byte type)
+{
+    switch (type) {
+        case TRADE_LINK_CARAVAN: return "caravan";
+        case TRADE_LINK_FLEET:   return "fleet";
+        default:                 return "?";
+    }
+}
+
+static void print_trade_link(const TradeLink *l)
+{
+    printf("#%-3u %-7s #%u <-> #%u  health=%3u throughput=%3u risk=%3u  flags=%s%s%s%s  last_event=%s\n",
+           l->link_id, link_type_name(l->type), l->from_settlement_id, l->to_settlement_id,
+           l->health, l->throughput, l->risk,
+           (l->status_flags & TRADE_LINK_ACTIVE) ? "A" : "-",
+           (l->status_flags & TRADE_LINK_DISRUPTED) ? "D" : "-",
+           (l->status_flags & TRADE_LINK_BLOCKED) ? "B" : "-",
+           (l->status_flags & TRADE_LINK_RECOVERING) ? "R" : "-",
+           l->last_event_tag == TRADE_LINK_EVENT_NONE ? "-" : event_name((EventType)l->last_event_tag));
+}
+
+static void cmd_links(void)
+{
+    word i;
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (world.trade_link_count == 0) { printf("no trade links yet\n"); return; }
+    for (i = 0; i < world.trade_link_count; i++) print_trade_link(&world.trade_links[i]);
+}
+
+static void cmd_nudge(byte id, const char *focus_arg)
 {
     Settlement *s = world_get_settlement(&world, id);
     int focus;
     if (!s) { printf("no such settlement #%u\n", id); return; }
     focus = focus_from_name(focus_arg);
     if (focus < 0) { printf("unknown focus '%s' (use TRA/AGR/GRO/SEC)\n", focus_arg); return; }
-    settlement_shift_culture(s, (CultureFocus)focus, value);
+    settlement_nudge_focus(s, (CultureFocus)focus);
+    print_settlement_header();
     print_settlement(s);
 }
 
@@ -113,7 +201,9 @@ static void print_help(void)
         "  tick [n]                     advance the simulation n ticks (default 1)\n"
         "  status                       show tick, settlement count, event weather\n"
         "  event <name> <id>            force an event (drought/plague/storm/pirates/market_crash/civil_war)\n"
-        "  setfocus <id> <TRA|AGR|GRO|SEC> <delta>   shift a settlement's cultural focus\n"
+        "  build <id> <structure>       build dock/warehouse/fort/townhall/monument in the first empty slot\n"
+        "  nudge <id> <TRA|AGR|GRO|SEC> nudge a settlement toward a cultural focus (structural investment)\n"
+        "  links                        list all trade links (health/throughput/risk/flags)\n"
         "  help                         show this text\n"
         "  quit                         exit\n");
 }
@@ -153,12 +243,18 @@ int main(int argc, char **argv)
             char *id = strtok(NULL, " \t\r\n");
             if (!name || !id) { printf("usage: event <name> <id>\n"); continue; }
             cmd_event(name, (byte)atoi(id));
-        } else if (strcmp(cmd, "setfocus") == 0) {
+        } else if (strcmp(cmd, "build") == 0) {
+            char *id = strtok(NULL, " \t\r\n");
+            char *type = strtok(NULL, " \t\r\n");
+            if (!id || !type) { printf("usage: build <id> <structure>\n"); continue; }
+            cmd_build((byte)atoi(id), type);
+        } else if (strcmp(cmd, "nudge") == 0) {
             char *id = strtok(NULL, " \t\r\n");
             char *focus = strtok(NULL, " \t\r\n");
-            char *delta = strtok(NULL, " \t\r\n");
-            if (!id || !focus || !delta) { printf("usage: setfocus <id> <TRA|AGR|GRO|SEC> <delta>\n"); continue; }
-            cmd_setfocus((byte)atoi(id), focus, atoi(delta));
+            if (!id || !focus) { printf("usage: nudge <id> <TRA|AGR|GRO|SEC>\n"); continue; }
+            cmd_nudge((byte)atoi(id), focus);
+        } else if (strcmp(cmd, "links") == 0) {
+            cmd_links();
         } else {
             printf("unknown command '%s' (try 'help')\n", cmd);
         }
