@@ -59,8 +59,7 @@ typedef enum {
 
 typedef struct {        // 24 bytes
     byte id;
-    byte x;
-    byte y;
+    byte x, y;
     byte owner;
     byte event_status;   /* current EventType in progress, or 0xFF = none */
     byte alive;

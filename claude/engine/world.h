@@ -7,6 +7,7 @@
 #include "settlement.h"
 #include "trade_link.h"
 #include "events.h"
+#include "note.h"
 
 /* NOTE: World (and Map within it) is a flat, statically-sized struct with
    no dynamic allocation -- intentional, since the X16 has no real heap.
@@ -137,6 +138,16 @@ typedef struct {
     Rng rng;
     byte event_chance_pct; /* current position of the event-chance random walk */
     word initial_settlement_count; /* "carrying capacity" baseline for colonize_chance(); 0 = no boost */
+
+    /* Transient-event stream for the tick just run (see note.h). world_tick()
+       clears note_count/notes_overflowed at its start; the caller drains
+       notes[0..note_count) afterward. notes_enabled is cleared only across
+       world_load()'s bootstrap link pass so initial state isn't reported
+       as history. */
+    Note notes[MAX_NOTES];
+    word note_count;
+    byte notes_overflowed;
+    byte notes_enabled;
 } World;
 
 /* Loads a .map file (see map.h) and seeds one Settlement per OBJ_SETTLEMENT

@@ -8,6 +8,7 @@ void run_settlement_tests(void);
 void run_events_tests(void);
 void run_map_tests(void);
 void run_world_tests(void);
+void run_note_tests(void);
 
 int main(void)
 {
@@ -15,6 +16,7 @@ int main(void)
     run_events_tests();
     run_map_tests();
     run_world_tests();
+    run_note_tests();
 
     printf("%d/%d checks passed\n", g_tests_run - g_tests_failed, g_tests_run);
     return g_tests_failed ? 1 : 0;

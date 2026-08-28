@@ -16,29 +16,36 @@ typedef enum {
 #define TRADE_LINK_BLOCKED    0x04
 #define TRADE_LINK_RECOVERING 0x08
 
+/* Travel direction along the (canonical, never-swapped) endpoint pair:
+   clear = outbound, unit moving from_settlement_id -> to_settlement_id;
+   set   = returning, unit moving to_settlement_id -> from_settlement_id.
+   `progress` counts up to path_cost regardless of direction; on arrival the
+   unit dwells (cooldown_or_recovery) then this bit flips and progress resets. */
+#define TRADE_LINK_RETURNING  0x10
+
 #define TRADE_LINK_EVENT_NONE 0xFF
 
 /*
    Fixed-size 16-byte link record (compact and deterministic):
    0 link_id
-   1 type
-   2 from_settlement_id
-   3 to_settlement_id
-   4 status_flags
-   5 health
-   6 throughput
-   7 risk
-   8 path_cost
-   9 range_or_distance
-  10 owner_or_controller
-  11 last_event_tag
-  12 cooldown_or_recovery
-  13 reserved_a
-  14 reserved_b
-  15 reserved_c
+   1, 2 location (unit's current x,y; derived/cached for rendering)
+   3 type
+   4 from_settlement_id  (canonical endpoint, never swapped)
+   5 to_settlement_id    (canonical endpoint, never swapped)
+   6 status_flags        (includes TRADE_LINK_RETURNING travel direction)
+   7 health
+   8 throughput
+   9 risk
+  10 path_cost
+  11 range_or_distance
+  12 owner_or_controller
+  13 last_event_tag
+  14 cooldown_or_recovery (also the dwell timer at each endpoint)
+  15 progress            (distance travelled this leg, 0..path_cost)
 */
 typedef struct {
     byte link_id;
+    byte x, y;
     byte type;
     byte from_settlement_id;
     byte to_settlement_id;
@@ -51,9 +58,7 @@ typedef struct {
     byte owner_or_controller;
     byte last_event_tag;
     byte cooldown_or_recovery;
-    byte reserved_a;
-    byte reserved_b;
-    byte reserved_c;
+    byte progress;
 } TradeLink;
 
 #endif

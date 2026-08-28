@@ -2,6 +2,28 @@
 
 Core concept: Pirate Kingdoms is a simulation of emergent civilization and impermanence. Players influence a living world but do not fully control it. Settlements rise, adapt, fracture, collapse, and are reborn through systemic interactions.
 
+# Structure
+
+                 BUSINESS LOGIC
+                       │
+              ┌────────┴────────┐
+              │                 │
+          WORLD STATE         NOTES
+              │                 │
+              └────────┬────────┘
+                       │
+                       ▼
+                 PRESENTATION
+                       │
+              ┌────────┴────────┐
+              │                 │
+           GRAPHICS           SOUND
+             API                API
+              │                 │
+              └────────┬────────┘
+                       ▼
+           HAL { null, debug, or X16 }
+
 # Canonical Design Rule
 
 Settlements are structure-first.
@@ -233,27 +255,31 @@ Each trade link should be a fixed-size 16-byte record, matching the compact sett
 Suggested 16-byte shape:
 
 1. link_id (1 byte)
-2. type (1 byte: caravan or fleet)
-3. from_settlement_id (1 byte)
-4. to_settlement_id (1 byte)
-5. status_flags (1 byte: active, disrupted, blocked, recovering)
-6. health (1 byte, 0-255)
-7. throughput (1 byte, 0-255)
-8. risk (1 byte, 0-255)
-9. path_cost (1 byte, 0-255)
-10. range_or_distance (1 byte, 0-255)
-11. owner_or_controller (1 byte)
-12. last_event_tag (1 byte)
-13. cooldown_or_recovery (1 byte)
-14. reserved_a (1 byte)
-15. reserved_b (1 byte)
-16. reserved_c (1 byte)
+2. location x, y (2 bytes: the travelling unit's current tile, derived/cached for rendering)
+3. type (1 byte: caravan, fleet or pirate)
+4. from_settlement_id (1 byte: canonical endpoint, never swapped)
+5. to_settlement_id (1 byte: canonical endpoint, never swapped)
+6. status_flags (1 byte: active, disrupted, blocked, recovering, returning)
+7. health (1 byte, 0-255)
+8. throughput (1 byte, 0-255)
+9. risk (1 byte, 0-255)
+10. path_cost (1 byte, 0-255)
+11. range_or_distance (1 byte, 0-255)
+12. owner_or_controller (1 byte)
+13. last_event_tag (1 byte)
+14. cooldown_or_recovery (1 byte: also the endpoint dwell timer)
+15. progress (1 byte: distance travelled this leg, 0..path_cost)
 
 Notes:
 
-- Keep endpoint ids directional so asymmetry is possible later
+- Endpoint ids are a fixed canonical pair -- they are never swapped. Travel
+  direction is the `returning` status flag: clear = from -> to, set = to -> from.
+  On arrival the unit dwells (cooldown_or_recovery), then the flag flips and
+  progress resets, so the same record shuttles back and forth without a
+  separate direction field or a mutated endpoint pair.
+- Directional asymmetry, if needed later, hangs off the stable from/to anchor
+  plus the returning flag rather than off which id currently sits in `to`.
 - Use flags + small scalar fields for deterministic, low-cost updates
-- Reserve bytes intentionally for backward-compatible expansion
 
 ## Legacy
 

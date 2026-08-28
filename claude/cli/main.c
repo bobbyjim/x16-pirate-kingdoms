@@ -10,6 +10,7 @@
 
 #include "../engine/common.h"
 #include "../engine/world.h"
+#include "../present/present.h"
 
 static World world;
 static byte world_ready = 0;
@@ -99,9 +100,41 @@ static void cmd_tick(int n)
 {
     int i;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
-    for (i = 0; i < n; i++) world_tick(&world);
+    for (i = 0; i < n; i++) {
+        world_tick(&world);
+        present_drain_notes(&world); /* notes are per-tick -- drain before the next */
+    }
     printf("advanced %d tick(s); world tick=%lu, event weather=%u%%\n",
            n, world.tick, world.event_chance_pct);
+}
+
+static int note_is_link(byte type)
+{
+    return type == NOTE_LINK_FORMED || type == NOTE_LINK_DISRUPTED ||
+           type == NOTE_LINK_BLOCKED || type == NOTE_CARAVAN_ARRIVED;
+}
+
+/* Dump the raw Note buffer from the most recent tick / forced event -- the
+   same data present_drain_notes() consumes, shown undecorated. */
+static void cmd_notes(void)
+{
+    word i;
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (world.note_count == 0) { printf("no notes from the last tick\n"); return; }
+    for (i = 0; i < world.note_count; i++) {
+        const Note *n = &world.notes[i];
+        if (note_is_link(n->type)) {
+            printf("  %-20s #%u <-> #%u", note_type_name((NoteType)n->type),
+                   NOTE_LINK_FROM(n->ref), NOTE_LINK_TO(n->ref));
+        } else {
+            printf("  %-20s #%u", note_type_name((NoteType)n->type), n->ref);
+        }
+        if (n->type == NOTE_EVENT_STRUCK || n->type == NOTE_LINK_DISRUPTED) {
+            printf(" (%s)", event_name((EventType)n->aux));
+        }
+        printf("\n");
+    }
+    if (world.notes_overflowed) printf("  ... buffer overflowed (MAX_NOTES=%d)\n", MAX_NOTES);
 }
 
 static void cmd_status(void)
@@ -131,6 +164,7 @@ static void cmd_event(const char *event_name_arg, byte id)
     if (type < 0) { printf("unknown event '%s'\n", event_name_arg); return; }
     if (!world_get_settlement(&world, id)) { printf("no such settlement #%u\n", id); return; }
     world_force_event(&world, id, (EventType)type);
+    present_drain_notes(&world);
     printf("applied %s to #%u:\n", event_name(type), id);
     print_settlement_header();
     print_settlement(world_get_settlement(&world, id));
@@ -204,6 +238,7 @@ static void print_help(void)
         "  build <id> <structure>       build dock/warehouse/fort/townhall/monument in the first empty slot\n"
         "  nudge <id> <TRA|AGR|GRO|SEC> nudge a settlement toward a cultural focus (structural investment)\n"
         "  links                        list all trade links (health/throughput/risk/flags)\n"
+        "  notes                        dump the transient-event buffer from the last tick/event\n"
         "  help                         show this text\n"
         "  quit                         exit\n");
 }
@@ -213,6 +248,7 @@ int main(int argc, char **argv)
     char line[256];
 
     printf("Pirate Kingdoms simulation CLI. Type 'help' for commands.\n");
+    present_init();
     if (argc > 1) cmd_load(argv[1]);
 
     while (fgets(line, sizeof(line), stdin)) {
@@ -255,6 +291,8 @@ int main(int argc, char **argv)
             cmd_nudge((byte)atoi(id), focus);
         } else if (strcmp(cmd, "links") == 0) {
             cmd_links();
+        } else if (strcmp(cmd, "notes") == 0) {
+            cmd_notes();
         } else {
             printf("unknown command '%s' (try 'help')\n", cmd);
         }

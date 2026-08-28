@@ -4,6 +4,19 @@
 static void apply_event_with_cascade(World *w, Settlement *s, EventType type, int depth);
 static void disrupt_links_for_settlement(World *w, const Settlement *s, EventType type);
 
+/* Append one transient Note for the current tick (see note.h). Silently
+   suppressed while notes_enabled is clear (world_load bootstrap); sets
+   notes_overflowed and drops the Note once the fixed buffer is full. */
+static void emit_note(World *w, NoteType type, word ref, byte aux)
+{
+    if (!w->notes_enabled) return;
+    if (w->note_count >= MAX_NOTES) { w->notes_overflowed = 1; return; }
+    w->notes[w->note_count].ref  = ref;
+    w->notes[w->note_count].type = (byte)type;
+    w->notes[w->note_count].aux  = aux;
+    w->note_count++;
+}
+
 /* Collects up to max_out *alive* settlements (excluding `self`) within
    NEIGHBOR_RADIUS tiles, searched directly over the live settlement table
    rather than the map's (now possibly stale) object list -- settlements
@@ -113,6 +126,9 @@ int world_load(World *w, const char *map_path, unsigned long seed)
     w->settlement_count = 0;
     w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
+    w->note_count = 0;
+    w->notes_overflowed = 0;
+    w->notes_enabled = 0; /* re-enabled after the bootstrap link pass below */
 
     if (map_load(&w->map, map_path) != 0) return -1;
 
@@ -149,6 +165,7 @@ int world_load(World *w, const char *map_path, unsigned long seed)
     for (i = 0; i < w->settlement_count; i++) {
         try_link_settlement(w, &w->settlements[i]);
     }
+    w->notes_enabled = 1;
 
     w->initial_settlement_count = w->settlement_count;
     return 0;
@@ -162,6 +179,9 @@ void world_init_empty(World *w, unsigned long seed)
     w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
     w->initial_settlement_count = 0; /* no colonize_chance() boost until set explicitly */
+    w->note_count = 0;
+    w->notes_overflowed = 0;
+    w->notes_enabled = 1;
     map_init_empty(&w->map);
 }
 
@@ -202,6 +222,8 @@ TradeLink *world_create_trade_link(World *w,
 
     /* Neutral starting defaults; future simulation layers tune these. */
     l->health = 200;
+    l->x = w->settlements[from_settlement_id].x;
+    l->y = w->settlements[from_settlement_id].y;
     l->throughput = 64;
     l->risk = 32;
     l->path_cost = path_cost;
@@ -209,11 +231,10 @@ TradeLink *world_create_trade_link(World *w,
     l->owner_or_controller = owner_or_controller;
     l->last_event_tag = TRADE_LINK_EVENT_NONE;
     l->cooldown_or_recovery = 0;
-    l->reserved_a = 0;
-    l->reserved_b = 0;
-    l->reserved_c = 0;
+    l->progress = 0;
 
     w->trade_link_count++;
+    emit_note(w, NOTE_LINK_FORMED, NOTE_LINK_REF(from_settlement_id, to_settlement_id), type);
     return l;
 }
 
@@ -256,16 +277,17 @@ static Settlement *allocate_settlement_slot(World *w, const Settlement *exclude)
    the split), and a new faction settlement is created nearby, armed but
    institutionally bare -- a single, freshly-seized Fort at low condition,
    which settlement_culture_vector() reads as AGR (stressed) rather than
-   SEC (stable). No-op if there's no room left in the settlement table
-   (static array, no heap -- see world.h). */
-static void spawn_faction(World *w, Settlement *parent)
+   SEC (stable). Returns the new faction's settlement id, or -1 if there's
+   no room left in the settlement table (static array, no heap -- see
+   world.h). */
+static int spawn_faction(World *w, Settlement *parent)
 {
     Settlement *child;
     byte i;
     int slot;
 
     child = allocate_settlement_slot(w, parent);
-    if (!child) return;
+    if (!child) return -1;
 
     for (i = 0; i < MAX_STRUCTURE_SLOTS; i++) {
         if (parent->structures[i].type != STRUCT_EMPTY) {
@@ -277,6 +299,8 @@ static void spawn_faction(World *w, Settlement *parent)
                      parent->capacity);
     slot = settlement_build(child, STRUCT_FORT);
     if (slot >= 0) settlement_damage_slot(child, (byte)slot, -(STAT_MAX - 3)); /* leave it stressed */
+
+    return (int)(child - w->settlements);
 }
 
 /* Straining an already-fragile neighbor can push it over the edge too;
@@ -323,8 +347,9 @@ static void found_encampment(Settlement *s, byte id, byte x, byte y, byte owner)
    existing settlements and, if found, founds a brand-new fragile
    encampment there. Silently gives up after COLONIZE_MAX_ATTEMPTS (no
    land found) or if the settlement table is full -- refugees are lost or
-   absorbed elsewhere instead. */
-static void try_found_colony(World *w, const Settlement *fallen, byte owner, byte near_x, byte near_y)
+   absorbed elsewhere instead. Returns the new colony's settlement id, or
+   -1 if none was founded. */
+static int try_found_colony(World *w, const Settlement *fallen, byte owner, byte near_x, byte near_y)
 {
     int attempt;
 
@@ -345,11 +370,12 @@ static void try_found_colony(World *w, const Settlement *fallen, byte owner, byt
 
         {
             Settlement *colony = allocate_settlement_slot(w, fallen);
-            if (!colony) return; /* table genuinely full */
+            if (!colony) return -1; /* table genuinely full */
             found_encampment(colony, (byte)(colony - w->settlements), x, y, owner);
+            return (int)(colony - w->settlements);
         }
-        return;
     }
+    return -1;
 }
 
 static word count_alive_settlements(const World *w)
@@ -400,12 +426,14 @@ static void cascade_refugees(World *w, Settlement *fallen, int depth)
     for (i = 0; i < count; i++) {
         if (apply_refugee_strain(neighbors[i], &w->rng)) {
             neighbors[i]->alive = 0;
+            emit_note(w, NOTE_SETTLEMENT_COLLAPSED, neighbors[i]->id, 0);
             cascade_refugees(w, neighbors[i], depth + 1);
         }
     }
 
     if (rng_range(&w->rng, 100) < (word)colonize_chance(w)) {
-        try_found_colony(w, fallen, fallen->owner, fallen->x, fallen->y);
+        int colony_id = try_found_colony(w, fallen, fallen->owner, fallen->x, fallen->y);
+        if (colony_id >= 0) emit_note(w, NOTE_COLONIZED, (word)colony_id, 0);
     }
 }
 
@@ -416,14 +444,17 @@ static void apply_event_with_cascade(World *w, Settlement *s, EventType type, in
     if (!s->alive) return;
 
     event_apply(s, type, &w->rng, &result);
+    emit_note(w, NOTE_EVENT_STRUCK, s->id, (byte)type);
     disrupt_links_for_settlement(w, s, type);
 
     if (result.spawned_faction) {
-        spawn_faction(w, s);
+        int faction_id = spawn_faction(w, s);
+        if (faction_id >= 0) emit_note(w, NOTE_FACTION_SPAWNED, (word)faction_id, 0);
     }
 
     if (result.collapsed) {
         s->alive = 0;
+        emit_note(w, NOTE_SETTLEMENT_COLLAPSED, s->id, 0);
         cascade_refugees(w, s, depth);
     }
 }
@@ -432,6 +463,8 @@ void world_force_event(World *w, byte id, EventType type)
 {
     Settlement *s = world_get_settlement(w, id);
     if (!s) return;
+    w->note_count = 0;        /* report just this forced event's fallout */
+    w->notes_overflowed = 0;
     apply_event_with_cascade(w, s, type, 0);
 }
 
@@ -467,6 +500,7 @@ static void step_ambient_resettlement(World *w)
     if (slot->alive) return;
 
     found_encampment(slot, (byte)idx, slot->x, slot->y, slot->owner);
+    emit_note(w, NOTE_RUIN_RESETTLED, idx, 0);
 }
 
 /* Per-tick maintenance for every recorded link: a dead endpoint blocks the
@@ -493,6 +527,10 @@ static void step_trade_link_maintenance(World *w)
         byte removed = 0;
 
         if (!from || !to || !from->alive || !to->alive) {
+            if (!(l->status_flags & TRADE_LINK_BLOCKED)) {
+                emit_note(w, NOTE_LINK_BLOCKED,
+                          NOTE_LINK_REF(l->from_settlement_id, l->to_settlement_id), 0);
+            }
             l->status_flags &= (byte)~(TRADE_LINK_ACTIVE | TRADE_LINK_RECOVERING);
             l->status_flags |= (TRADE_LINK_BLOCKED | TRADE_LINK_DISRUPTED);
             if (l->cooldown_or_recovery < 255) l->cooldown_or_recovery++;
@@ -564,6 +602,10 @@ static void disrupt_links_for_settlement(World *w, const Settlement *s, EventTyp
         damage = TRADE_LINK_HEALTH_DAMAGE - (int)(settlement_defense_posture(s) / 8);
         if (damage < 1) damage = 1;
 
+        if (l->status_flags & TRADE_LINK_ACTIVE) {
+            emit_note(w, NOTE_LINK_DISRUPTED,
+                      NOTE_LINK_REF(l->from_settlement_id, l->to_settlement_id), (byte)type);
+        }
         l->health = (l->health > (byte)damage) ? (byte)(l->health - damage) : 0;
         l->status_flags &= (byte)~(TRADE_LINK_ACTIVE | TRADE_LINK_RECOVERING);
         l->status_flags |= TRADE_LINK_DISRUPTED;
@@ -575,6 +617,9 @@ void world_tick(World *w)
 {
     word i;
     word settlement_count_at_start = w->settlement_count; /* spawns mid-tick don't get a turn yet */
+
+    w->note_count = 0;        /* Notes describe only the tick about to run */
+    w->notes_overflowed = 0;
 
     step_event_weather(w);
     step_ambient_resettlement(w);
