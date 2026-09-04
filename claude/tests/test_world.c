@@ -90,6 +90,40 @@ static void test_force_event(void)
     CHECK(s->event_status == EVENT_PIRATES);
 }
 
+static void test_world_lookup_api(void)
+{
+    World w;
+    const Settlement *s;
+    WorldTileInfo tile;
+    byte ids[16];
+    word visible;
+    word active;
+    word disrupted;
+
+    CHECK(world_load(&w, SAMPLE_MAP, 7) == 0);
+    s = world_get_settlement(&w, 0);
+    CHECK(s != NULL);
+    CHECK(world_settlement_count(&w) == w.settlement_count);
+    CHECK(world_alive_settlement_count(&w) == w.settlement_count);
+    CHECK(world_get_tile_info(&w, s->x, s->y, &tile) == 0);
+    CHECK(tile.x == s->x);
+    CHECK(tile.y == s->y);
+    CHECK(tile.has_object == 1);
+    CHECK(tile.object_index > 0);
+    CHECK(tile.object.type == OBJ_SETTLEMENT);
+    CHECK(world_find_settlement_at(&w, s->x, s->y) == s);
+    CHECK(world_find_settlement_at(&w, 0, 0) == NULL || world_find_settlement_at(&w, 0, 0)->x == 0);
+    CHECK(world_get_tile_info(&w, 0, 0, NULL) == -1);
+    visible = world_find_settlements_in_rect(&w, 100, 86, 16, 16, ids, 16);
+    CHECK(visible > 0);
+    CHECK(ids[0] == 0);
+    CHECK(world_trade_link_count(&w) > 0);
+    CHECK(world_get_trade_link_const(&w, 0) != NULL);
+    world_trade_link_status_counts(&w, &active, &disrupted);
+    CHECK(active <= world_trade_link_count(&w));
+    CHECK(disrupted <= world_trade_link_count(&w));
+}
+
 /* Cascade behavior is tested against a small hand-built world so it's not
    at the mercy of the sample map's actual layout. */
 static void test_refugee_cascade(void)
@@ -366,6 +400,7 @@ void run_world_tests(void)
 {
     test_load_and_tick();
     test_force_event();
+    test_world_lookup_api();
     test_refugee_cascade();
     test_civil_war_spawns_faction();
     test_refugee_founds_colony();

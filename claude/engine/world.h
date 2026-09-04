@@ -150,16 +150,38 @@ typedef struct {
     byte notes_enabled;
 } World;
 
+typedef struct {
+   byte x;
+   byte y;
+   byte terrain;
+   byte travel_ease;
+   byte is_special_zone;
+   byte has_object;
+   byte object_index;
+   MapObject object;
+} WorldTileInfo;
+
 /* Loads a .map file (see map.h) and seeds one Settlement per OBJ_SETTLEMENT
    object found in it, scaling the map's size byte into the 0-15 stat range. */
 int  world_load(World *w, const char *map_path, unsigned long seed);
 void world_init_empty(World *w, unsigned long seed);
 
+word world_settlement_count(const World *w);
+word world_alive_settlement_count(const World *w);
 Settlement *world_get_settlement(World *w, byte id); /* NULL if id out of range */
+const Settlement *world_get_settlement_const(const World *w, byte id);
+const Settlement *world_find_settlement_at(const World *w, byte x, byte y);
+int world_get_tile_info(const World *w, byte x, byte y, WorldTileInfo *out);
+word world_find_settlements_in_rect(const World *w, byte x, byte y,
+                                    byte width, byte height,
+                                    byte *out_ids, word max_out);
 
 /* Minimal trade-link management API (schema only, no routing behavior).
    IDs are table indices (0..trade_link_count-1). */
+word world_trade_link_count(const World *w);
 TradeLink *world_get_trade_link(World *w, word id); /* NULL if id out of range */
+const TradeLink *world_get_trade_link_const(const World *w, word id);
+void world_trade_link_status_counts(const World *w, word *active_out, word *disrupted_out);
 TradeLink *world_create_trade_link(World *w,
                                    byte type,
                                    byte from_settlement_id,

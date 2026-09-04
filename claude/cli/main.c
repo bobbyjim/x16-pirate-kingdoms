@@ -12,8 +12,393 @@
 #include "../engine/world.h"
 #include "../present/present.h"
 
+#define MAP_WINDOW_SIZE 16
+
 static World world;
 static byte world_ready = 0;
+static byte view_center_x = MAP_WIDTH / 2;
+static byte view_center_y = MAP_HEIGHT / 2;
+static byte cursor_row = MAP_WINDOW_SIZE / 2;
+static byte cursor_col = MAP_WINDOW_SIZE / 2;
+
+static void print_settlement(const Settlement *s);
+static void print_settlement_header(void);
+
+static byte clamp_view_center(int v)
+{
+    if (v < MAP_WINDOW_SIZE / 2) return MAP_WINDOW_SIZE / 2;
+    if (v > MAP_WIDTH - (MAP_WINDOW_SIZE / 2)) return MAP_WIDTH - (MAP_WINDOW_SIZE / 2);
+    return (byte)v;
+}
+
+static byte map_window_origin(byte center)
+{
+    int origin = center - (MAP_WINDOW_SIZE / 2);
+    if (origin < 0) origin = 0;
+    if (origin > MAP_WIDTH - MAP_WINDOW_SIZE) origin = MAP_WIDTH - MAP_WINDOW_SIZE;
+    return (byte)origin;
+}
+
+static byte clamp_window_index(int v)
+{
+    if (v < 0) return 0;
+    if (v >= MAP_WINDOW_SIZE) return MAP_WINDOW_SIZE - 1;
+    return (byte)v;
+}
+
+static byte current_origin_x(void)
+{
+    return map_window_origin(view_center_x);
+}
+
+static byte current_origin_y(void)
+{
+    return map_window_origin(view_center_y);
+}
+
+static byte current_cursor_world_x(void)
+{
+    return (byte)(current_origin_x() + cursor_col);
+}
+
+static byte current_cursor_world_y(void)
+{
+    return (byte)(current_origin_y() + cursor_row);
+}
+
+static void sync_cursor_to_world(byte x, byte y)
+{
+    cursor_col = clamp_window_index((int)x - (int)current_origin_x());
+    cursor_row = clamp_window_index((int)y - (int)current_origin_y());
+}
+
+static void reset_cursor(void)
+{
+    cursor_row = MAP_WINDOW_SIZE / 2;
+    cursor_col = MAP_WINDOW_SIZE / 2;
+}
+
+static void reset_view_center(void)
+{
+    word i;
+
+    for (i = 0; i < world.settlement_count; i++) {
+        const Settlement *s = world_get_settlement(&world, (byte)i);
+        if (!s || !s->alive) continue;
+        view_center_x = clamp_view_center(s->x);
+        view_center_y = clamp_view_center(s->y);
+        sync_cursor_to_world(s->x, s->y);
+        return;
+    }
+
+    view_center_x = MAP_WIDTH / 2;
+    view_center_y = MAP_HEIGHT / 2;
+    reset_cursor();
+}
+
+static char terrain_glyph(byte terrain)
+{
+    switch (terrain) {
+        case TERRAIN_WATER:     return '.';
+        case TERRAIN_GRASS:     return 'g';
+        case TERRAIN_FOREST:    return 'f';
+        case TERRAIN_HILLS:     return 'h';
+        case TERRAIN_MOUNTAINS: return 'm';
+        case TERRAIN_DESERT:    return 'd';
+        case TERRAIN_SWAMP:     return 'w';
+        default:                return '?';
+    }
+}
+
+static char object_glyph(byte type)
+{
+    switch (type) {
+        case OBJ_SETTLEMENT: return 'X';
+        case OBJ_TOWER:      return 'T';
+        case OBJ_SHRINE:     return 'S';
+        case OBJ_RUINS:      return 'R';
+        case OBJ_MINE:       return 'M';
+        case OBJ_STELA:      return 'A';
+        case OBJ_PORTAL:     return 'P';
+        case OBJ_CAVE:       return 'C';
+        case OBJ_MONUMENT:   return 'O';
+        case OBJ_LIGHTHOUSE: return 'L';
+        case OBJ_BRIDGE:     return 'B';
+        case OBJ_SHIP:       return 's';
+        case OBJ_GROUP:      return 'G';
+        default:             return '?';
+    }
+}
+
+static const char *object_type_name(byte type)
+{
+    switch (type) {
+        case OBJ_SETTLEMENT: return "settlement";
+        case OBJ_TOWER:      return "tower";
+        case OBJ_SHRINE:     return "shrine";
+        case OBJ_RUINS:      return "ruins";
+        case OBJ_MINE:       return "mine";
+        case OBJ_STELA:      return "stela";
+        case OBJ_PORTAL:     return "portal";
+        case OBJ_CAVE:       return "cave";
+        case OBJ_MONUMENT:   return "monument";
+        case OBJ_LIGHTHOUSE: return "lighthouse";
+        case OBJ_BRIDGE:     return "bridge";
+        case OBJ_SHIP:       return "ship";
+        case OBJ_GROUP:      return "group";
+        default:             return "unknown";
+    }
+}
+
+static int parse_hex_nibble(const char *s)
+{
+    char *end;
+    unsigned long value;
+
+    if (!s || s[0] == '\0') return -1;
+    value = strtoul(s, &end, 16);
+    if (*end != '\0' || value >= MAP_WINDOW_SIZE) return -1;
+    return (int)value;
+}
+
+static int glyph_for_tile(const WorldTileInfo *tile)
+{
+    if (tile->object_index > 0) return object_glyph(tile->object.type);
+    if (tile->travel_ease == 3) return '=';
+    return terrain_glyph(tile->terrain);
+}
+
+static void print_cursor_status(void)
+{
+    WorldTileInfo tile;
+
+    world_get_tile_info(&world, current_cursor_world_x(), current_cursor_world_y(), &tile);
+    printf("cursor=(%X,%X) world=(%u,%u) tile=%c",
+           cursor_row, cursor_col, tile.x, tile.y, glyph_for_tile(&tile));
+    if (tile.object_index > 0) {
+        printf(" object=%s#%u", object_type_name(tile.object.type), tile.object_index);
+    }
+    printf("\n");
+}
+static void cmd_visible(void)
+{
+    byte ids[MAP_WINDOW_SIZE * MAP_WINDOW_SIZE];
+    byte origin_x, origin_y;
+    word found, i;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+
+    origin_x = current_origin_x();
+    origin_y = current_origin_y();
+    found = world_find_settlements_in_rect(&world, origin_x, origin_y,
+                                           MAP_WINDOW_SIZE, MAP_WINDOW_SIZE,
+                                           ids, MAP_WINDOW_SIZE * MAP_WINDOW_SIZE);
+
+    if (found == 0) {
+        printf("no settlements visible in the current 16x16 window\n");
+        return;
+    }
+
+    printf("visible settlements (%u)\n", found);
+    for (i = 0; i < found; i++) {
+        const Settlement *s = world_get_settlement_const(&world, ids[i]);
+        if (!s) continue;
+        printf("  %X,%X  #%u  (%u,%u)  %s  %s\n",
+               (byte)(s->y - origin_y), (byte)(s->x - origin_x),
+               s->id, s->x, s->y,
+               s->alive ? "alive" : "DEAD ",
+               s->event_status == EVENT_STATUS_NONE ? "-" : event_name((EventType)s->event_status));
+    }
+}
+
+static void inspect_window_cell(byte row, byte col)
+{
+    byte world_x = (byte)(current_origin_x() + col);
+    byte world_y = (byte)(current_origin_y() + row);
+    WorldTileInfo tile;
+
+    world_get_tile_info(&world, world_x, world_y, &tile);
+
+    printf("tile %X,%X -> world (%u,%u): terrain=%c travel=%u special=%s object=%s\n",
+           row, col, tile.x, tile.y, terrain_glyph(tile.terrain), tile.travel_ease,
+           tile.is_special_zone ? "yes" : "no", tile.has_object ? "yes" : "no");
+
+    if (tile.object_index > 0) {
+        printf("object #%u: %s at (%u,%u)",
+               tile.object_index, object_type_name(tile.object.type), tile.object.x, tile.object.y);
+        if (tile.object.type == OBJ_SETTLEMENT) printf(" size=%u", tile.object.data[0]);
+        printf("\n");
+
+        if (tile.object.type == OBJ_SETTLEMENT) {
+            const Settlement *s = world_find_settlement_at(&world, tile.x, tile.y);
+            if (s) {
+                print_settlement_header();
+                print_settlement(s);
+            } else {
+                printf("note: settlement object exists in the map, but no live settlement record is currently aligned to that tile\n");
+            }
+        }
+    }
+}
+
+static void cmd_map(void)
+{
+    byte origin_x, origin_y, row, col;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+
+    origin_x = map_window_origin(view_center_x);
+    origin_y = map_window_origin(view_center_y);
+
+    printf("    0123456789ABCDEF\n");
+    for (row = 0; row < MAP_WINDOW_SIZE; row++) {
+        printf("%X | ", row);
+        for (col = 0; col < MAP_WINDOW_SIZE; col++) {
+            WorldTileInfo tile;
+            char glyph;
+
+            world_get_tile_info(&world, (byte)(origin_x + col), (byte)(origin_y + row), &tile);
+            if (row == cursor_row && col == cursor_col) {
+                glyph = '@';
+            } else {
+                glyph = (char)glyph_for_tile(&tile);
+            }
+
+            putchar(glyph);
+        }
+        printf("\n");
+    }
+
+    printf("window origin=(%u,%u) center=(%u,%u)\n", origin_x, origin_y, view_center_x, view_center_y);
+    printf("legend: .=water g=grass f=forest h=hills m=mountains d=desert w=swamp =road X=settlement\n");
+    print_cursor_status();
+}
+
+static void cmd_center(byte x, byte y)
+{
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    view_center_x = clamp_view_center(x);
+    view_center_y = clamp_view_center(y);
+    sync_cursor_to_world(x, y);
+    cmd_map();
+}
+
+static void cmd_pan(const char *dir, int amount)
+{
+    int dx = 0, dy = 0;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (amount < 1) amount = 1;
+
+    if (strcasecmp(dir, "n") == 0 || strcasecmp(dir, "north") == 0) dy = -amount;
+    else if (strcasecmp(dir, "s") == 0 || strcasecmp(dir, "south") == 0) dy = amount;
+    else if (strcasecmp(dir, "e") == 0 || strcasecmp(dir, "east") == 0) dx = amount;
+    else if (strcasecmp(dir, "w") == 0 || strcasecmp(dir, "west") == 0) dx = -amount;
+    else {
+        printf("unknown direction '%s' (use n/s/e/w)\n", dir);
+        return;
+    }
+
+    view_center_x = clamp_view_center((int)view_center_x + dx);
+    view_center_y = clamp_view_center((int)view_center_y + dy);
+    sync_cursor_to_world(current_cursor_world_x(), current_cursor_world_y());
+    cmd_map();
+}
+
+static void cmd_goto(byte id)
+{
+    const Settlement *s = world_get_settlement(&world, id);
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (!s) { printf("no such settlement #%u\n", id); return; }
+
+    view_center_x = clamp_view_center(s->x);
+    view_center_y = clamp_view_center(s->y);
+    sync_cursor_to_world(s->x, s->y);
+    cmd_map();
+}
+
+static void move_cursor_step(int dx, int dy)
+{
+    int next_col = (int)cursor_col + dx;
+    int next_row = (int)cursor_row + dy;
+
+    if (next_col < 0) {
+        view_center_x = clamp_view_center((int)view_center_x - 1);
+        next_col = 0;
+    } else if (next_col >= MAP_WINDOW_SIZE) {
+        view_center_x = clamp_view_center((int)view_center_x + 1);
+        next_col = MAP_WINDOW_SIZE - 1;
+    }
+
+    if (next_row < 0) {
+        view_center_y = clamp_view_center((int)view_center_y - 1);
+        next_row = 0;
+    } else if (next_row >= MAP_WINDOW_SIZE) {
+        view_center_y = clamp_view_center((int)view_center_y + 1);
+        next_row = MAP_WINDOW_SIZE - 1;
+    }
+
+    cursor_col = clamp_window_index(next_col);
+    cursor_row = clamp_window_index(next_row);
+}
+
+static void cmd_cursor(const char *row_arg, const char *col_arg)
+{
+    int row = parse_hex_nibble(row_arg);
+    int col = parse_hex_nibble(col_arg);
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (row < 0 || col < 0) {
+        printf("usage: cursor <row-hex> <col-hex>\n");
+        return;
+    }
+
+    cursor_row = (byte)row;
+    cursor_col = (byte)col;
+    cmd_map();
+}
+
+static void cmd_move(const char *dir, int amount)
+{
+    int dx = 0, dy = 0;
+    int i;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (amount < 1) amount = 1;
+
+    if (strcasecmp(dir, "n") == 0 || strcasecmp(dir, "north") == 0) dy = -1;
+    else if (strcasecmp(dir, "s") == 0 || strcasecmp(dir, "south") == 0) dy = 1;
+    else if (strcasecmp(dir, "e") == 0 || strcasecmp(dir, "east") == 0) dx = 1;
+    else if (strcasecmp(dir, "w") == 0 || strcasecmp(dir, "west") == 0) dx = -1;
+    else {
+        printf("unknown direction '%s' (use n/s/e/w)\n", dir);
+        return;
+    }
+
+    for (i = 0; i < amount; i++) move_cursor_step(dx, dy);
+    cmd_map();
+}
+
+static void cmd_inspect(const char *row_arg, const char *col_arg)
+{
+    int row = parse_hex_nibble(row_arg);
+    int col = parse_hex_nibble(col_arg);
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (row < 0 || col < 0) {
+        printf("usage: inspect <row-hex> <col-hex>   (0-F within the current 16x16 map window)\n");
+        return;
+    }
+
+    inspect_window_cell((byte)row, (byte)col);
+}
+
+static void cmd_look(void)
+{
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    inspect_window_cell(cursor_row, cursor_col);
+}
 
 static int focus_from_name(const char *name)
 {
@@ -72,7 +457,9 @@ static void cmd_load(const char *path)
         return;
     }
     world_ready = 1;
-    printf("loaded %s: %u settlement(s), seed=%lu\n", path, world.settlement_count, seed);
+    reset_cursor();
+    reset_view_center();
+    printf("loaded %s: %u settlement(s), seed=%lu\n", path, world_settlement_count(&world), seed);
 }
 
 static void print_settlement_header() {
@@ -85,7 +472,10 @@ static void cmd_list(void)
     word i;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
     print_settlement_header();
-    for (i = 0; i < world.settlement_count; i++) print_settlement(&world.settlements[i]);
+    for (i = 0; i < world_settlement_count(&world); i++) {
+        const Settlement *s = world_get_settlement_const(&world, (byte)i);
+        if (s) print_settlement(s);
+    }
 }
 
 static void cmd_show(byte id)
@@ -139,21 +529,15 @@ static void cmd_notes(void)
 
 static void cmd_status(void)
 {
-    word i, alive = 0, links_active = 0, links_disrupted = 0;
+    word alive, links_active, links_disrupted;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
-    for (i = 0; i < world.settlement_count; i++) {
-        if (world.settlements[i].alive) alive++;
-    }
-    for (i = 0; i < world.trade_link_count; i++) {
-        byte flags = world.trade_links[i].status_flags;
-        if (flags & TRADE_LINK_ACTIVE) links_active++;
-        if (flags & TRADE_LINK_DISRUPTED) links_disrupted++;
-    }
+    alive = world_alive_settlement_count(&world);
+    world_trade_link_status_counts(&world, &links_active, &links_disrupted);
     printf("tick=%lu  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
            "trade links=%u (%u active, %u disrupted)\n",
-           world.tick, alive, world.settlement_count, world.initial_settlement_count,
+           world.tick, alive, world_settlement_count(&world), world.initial_settlement_count,
            world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX,
-           world.trade_link_count, links_active, links_disrupted);
+           world_trade_link_count(&world), links_active, links_disrupted);
 }
 
 static void cmd_event(const char *event_name_arg, byte id)
@@ -209,8 +593,11 @@ static void cmd_links(void)
 {
     word i;
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
-    if (world.trade_link_count == 0) { printf("no trade links yet\n"); return; }
-    for (i = 0; i < world.trade_link_count; i++) print_trade_link(&world.trade_links[i]);
+    if (world_trade_link_count(&world) == 0) { printf("no trade links yet\n"); return; }
+    for (i = 0; i < world_trade_link_count(&world); i++) {
+        const TradeLink *l = world_get_trade_link_const(&world, i);
+        if (l) print_trade_link(l);
+    }
 }
 
 static void cmd_nudge(byte id, const char *focus_arg)
@@ -230,6 +617,15 @@ static void print_help(void)
     printf(
         "commands:\n"
         "  load <path>                  load a .map file (e.g. ../src-prototype1/archipelago.map)\n"
+        "  map                          draw a 16x16 ASCII window around the current view center\n"
+        "  visible                      list settlement ids currently inside the 16x16 map window\n"
+        "  center <x> <y>               move the map window center to world coordinates 0..255\n"
+        "  goto <id>                    center the map window on a settlement id\n"
+        "  pan <n|s|e|w> [n]            move the map window center by n tiles (default 1)\n"
+        "  cursor <row> <col>           place the cursor at 0-F,0-F inside the current map window\n"
+        "  move <n|s|e|w> [n]           move the cursor by n tiles, panning the window at edges\n"
+        "  look                         inspect the tile under the current cursor\n"
+        "  inspect <row> <col>          inspect tile 0-F,0-F inside the current map window\n"
         "  list                         list all settlements\n"
         "  show <id>                    show one settlement\n"
         "  tick [n]                     advance the simulation n ticks (default 1)\n"
@@ -263,6 +659,41 @@ int main(int argc, char **argv)
             char *path = strtok(NULL, " \t\r\n");
             if (!path) { printf("usage: load <path>\n"); continue; }
             cmd_load(path);
+        } else if (strcmp(cmd, "map") == 0) {
+            cmd_map();
+        } else if (strcmp(cmd, "visible") == 0) {
+            cmd_visible();
+        } else if (strcmp(cmd, "center") == 0) {
+            char *x = strtok(NULL, " \t\r\n");
+            char *y = strtok(NULL, " \t\r\n");
+            if (!x || !y) { printf("usage: center <x> <y>\n"); continue; }
+            cmd_center((byte)atoi(x), (byte)atoi(y));
+        } else if (strcmp(cmd, "goto") == 0) {
+            char *id = strtok(NULL, " \t\r\n");
+            if (!id) { printf("usage: goto <id>\n"); continue; }
+            cmd_goto((byte)atoi(id));
+        } else if (strcmp(cmd, "pan") == 0) {
+            char *dir = strtok(NULL, " \t\r\n");
+            char *n = strtok(NULL, " \t\r\n");
+            if (!dir) { printf("usage: pan <n|s|e|w> [n]\n"); continue; }
+            cmd_pan(dir, n ? atoi(n) : 1);
+        } else if (strcmp(cmd, "cursor") == 0) {
+            char *row = strtok(NULL, " \t\r\n");
+            char *col = strtok(NULL, " \t\r\n");
+            if (!row || !col) { printf("usage: cursor <row-hex> <col-hex>\n"); continue; }
+            cmd_cursor(row, col);
+        } else if (strcmp(cmd, "move") == 0) {
+            char *dir = strtok(NULL, " \t\r\n");
+            char *n = strtok(NULL, " \t\r\n");
+            if (!dir) { printf("usage: move <n|s|e|w> [n]\n"); continue; }
+            cmd_move(dir, n ? atoi(n) : 1);
+        } else if (strcmp(cmd, "look") == 0) {
+            cmd_look();
+        } else if (strcmp(cmd, "inspect") == 0) {
+            char *row = strtok(NULL, " \t\r\n");
+            char *col = strtok(NULL, " \t\r\n");
+            if (!row || !col) { printf("usage: inspect <row-hex> <col-hex>\n"); continue; }
+            cmd_inspect(row, col);
         } else if (strcmp(cmd, "list") == 0) {
             cmd_list();
         } else if (strcmp(cmd, "status") == 0) {

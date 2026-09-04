@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <string.h>
 #include "world.h"
 
 static void apply_event_with_cascade(World *w, Settlement *s, EventType type, int depth);
@@ -185,16 +186,121 @@ void world_init_empty(World *w, unsigned long seed)
     map_init_empty(&w->map);
 }
 
+word world_settlement_count(const World *w)
+{
+    return w->settlement_count;
+}
+
+word world_alive_settlement_count(const World *w)
+{
+    word i, alive = 0;
+
+    for (i = 0; i < w->settlement_count; i++) {
+        if (w->settlements[i].alive) alive++;
+    }
+
+    return alive;
+}
+
 Settlement *world_get_settlement(World *w, byte id)
 {
     if (id >= w->settlement_count) return NULL;
     return &w->settlements[id];
 }
 
+const Settlement *world_get_settlement_const(const World *w, byte id)
+{
+    if (id >= w->settlement_count) return NULL;
+    return &w->settlements[id];
+}
+
+const Settlement *world_find_settlement_at(const World *w, byte x, byte y)
+{
+    word i;
+
+    for (i = 0; i < w->settlement_count; i++) {
+        const Settlement *s = &w->settlements[i];
+        if (s->x == x && s->y == y) return s;
+    }
+
+    return NULL;
+}
+
+int world_get_tile_info(const World *w, byte x, byte y, WorldTileInfo *out)
+{
+    if (!out) return -1;
+
+    out->x = x;
+    out->y = y;
+    out->terrain = map_get_terrain_at(&w->map, x, y);
+    out->travel_ease = map_get_travel_ease(&w->map, x, y);
+    out->is_special_zone = map_is_special_zone(&w->map, x, y);
+    out->has_object = map_has_object_at(&w->map, x, y);
+    out->object_index = map_get_object_index_at(&w->map, x, y);
+
+    memset(&out->object, 0, sizeof(out->object));
+    if (out->object_index > 0) {
+        map_get_object(&w->map, (word)(out->object_index - 1), &out->object);
+    }
+
+    return 0;
+}
+
+word world_find_settlements_in_rect(const World *w, byte x, byte y,
+                                    byte width, byte height,
+                                    byte *out_ids, word max_out)
+{
+    word i, found = 0;
+    int x_end = (int)x + width;
+    int y_end = (int)y + height;
+
+    if (!out_ids || max_out == 0 || width == 0 || height == 0) return 0;
+    if (x_end > MAP_WIDTH) x_end = MAP_WIDTH;
+    if (y_end > MAP_HEIGHT) y_end = MAP_HEIGHT;
+
+    for (i = 0; i < w->settlement_count && found < max_out; i++) {
+        const Settlement *s = &w->settlements[i];
+
+        if (s->x < x || s->x >= x_end) continue;
+        if (s->y < y || s->y >= y_end) continue;
+
+        out_ids[found++] = (byte)i;
+    }
+
+    return found;
+}
+
+word world_trade_link_count(const World *w)
+{
+    return w->trade_link_count;
+}
+
 TradeLink *world_get_trade_link(World *w, word id)
 {
     if (id >= w->trade_link_count) return NULL;
     return &w->trade_links[id];
+}
+
+const TradeLink *world_get_trade_link_const(const World *w, word id)
+{
+    if (id >= w->trade_link_count) return NULL;
+    return &w->trade_links[id];
+}
+
+void world_trade_link_status_counts(const World *w, word *active_out, word *disrupted_out)
+{
+    word i;
+    word active = 0;
+    word disrupted = 0;
+
+    for (i = 0; i < w->trade_link_count; i++) {
+        byte flags = w->trade_links[i].status_flags;
+        if (flags & TRADE_LINK_ACTIVE) active++;
+        if (flags & TRADE_LINK_DISRUPTED) disrupted++;
+    }
+
+    if (active_out) *active_out = active;
+    if (disrupted_out) *disrupted_out = disrupted;
 }
 
 TradeLink *world_create_trade_link(World *w,
