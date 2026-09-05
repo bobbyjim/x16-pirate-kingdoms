@@ -378,6 +378,16 @@ static void move_cursor_step(int dx, int dy)
     cursor_row = clamp_window_index(next_row);
 }
 
+static void recenter_view_on_cursor(void)
+{
+    byte world_x = current_cursor_world_x();
+    byte world_y = current_cursor_world_y();
+
+    view_center_x = clamp_view_center(world_x);
+    view_center_y = clamp_view_center(world_y);
+    sync_cursor_to_world(world_x, world_y);
+}
+
 static void cmd_cursor(const char *row_arg, const char *col_arg)
 {
     int row = parse_hex_nibble(row_arg);
@@ -698,6 +708,7 @@ static void cmd_game_move(const char *dir, int amount)
         byte x, y;
 
         move_cursor_step(dx, dy);
+        recenter_view_on_cursor();
         x = current_cursor_world_x();
         y = current_cursor_world_y();
         world_get_tile_info(&world, x, y, &tile);
@@ -735,7 +746,7 @@ static void print_game_help(void)
 {
     printf(
         "game mode:\n"
-        "  move <n|s|e|w> [n]      each step adds terrain cost; tick fires at 240\n"
+        "  move <n|s|e|w> [n]      recenter view, add terrain cost; tick fires at 240\n"
         "  look                    inspect the tile under the cursor\n"
         "  map                     show the current 16x16 map window\n"
         "  tick [n]                advance the world n ticks\n"

@@ -1,0 +1,252 @@
+Modules list:
+-------------
+main.o:
+    CODE              Offs=000000  Size=000084  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=0000E8  Align=00001  Fill=0000
+gfx_x16.o:
+    CODE              Offs=000084  Size=00002C  Align=00001  Fill=0000
+sound_x16.o:
+    CODE              Offs=0000B0  Size=000007  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(_cursor.o):
+    BSS               Offs=000000  Size=000001  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(addysp.o):
+    CODE              Offs=0000B7  Size=00000E  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(callmain.o):
+    CODE              Offs=0000C5  Size=000017  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(cgetc.o):
+    CODE              Offs=0000DC  Size=000064  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(clrscr.o):
+    CODE              Offs=000140  Size=000011  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(condes.o):
+    CODE              Offs=000151  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000004  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(cputc.o):
+    CODE              Offs=00015D  Size=00006E  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(cputs.o):
+    CODE              Offs=0001CB  Size=000023  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(crt0.o):
+    STARTUP           Offs=000000  Size=000028  Align=00001  Fill=0000
+    ONCE              Offs=00000C  Size=000023  Align=00001  Fill=0000
+    INIT              Offs=000000  Size=000002  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(exehdr.o):
+    EXEHDR            Offs=000000  Size=00000C  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(gotoxy.o):
+    CODE              Offs=0001EE  Size=00000F  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(incsp2.o):
+    CODE              Offs=0001FD  Size=000015  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(incsp4.o):
+    CODE              Offs=000212  Size=000005  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(incsp5.o):
+    CODE              Offs=000217  Size=000005  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(incsp6.o):
+    CODE              Offs=00021C  Size=000005  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(kbhit.o):
+    CODE              Offs=000221  Size=00000E  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(kernal.o):
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(ldaxsp.o):
+    CODE              Offs=00022F  Size=000009  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(loadaddr.o):
+    LOADADDR          Offs=000000  Size=000002  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(popa.o):
+    CODE              Offs=000238  Size=00000A  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(pusha.o):
+    CODE              Offs=000242  Size=000016  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(pushax.o):
+    CODE              Offs=000258  Size=00001A  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(zerobss.o):
+    CODE              Offs=000272  Size=000023  Align=00001  Fill=0000
+/usr/local/Cellar/cc65/2.19/share/cc65/lib/cx16.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000022  00003B  00001A  00001
+LOADADDR              0007FF  000800  000002  00001
+EXEHDR                000801  00080C  00000C  00001
+STARTUP               00080D  000834  000028  00001
+CODE                  000835  000AC9  000295  00001
+RODATA                000ACA  000BB1  0000E8  00001
+DATA                  000BB2  000BDA  000029  00001
+INIT                  000BDB  000BDC  000002  00001
+BSS                   000BDD  000BDD  000001  00001
+ONCE                  000BDD  000C0B  00002F  00001
+
+
+Exports list by name:
+---------------------
+CHROUT                    00FFD2 RLA    GETIN                     00FFE4 RLA    
+PLOT                      00FFF0 RLA    __BSS_RUN__               000BDD RLA    
+__BSS_SIZE__              000001 REA    __CONSTRUCTOR_COUNT__     000000 REA    
+__CONSTRUCTOR_TABLE__     000C0C RLA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      000BB2 RLA    __EXEHDR__                000001 REA    
+__HEADER_LAST__           00080D RLA    __HIMEM__                 009F00 REA    
+__LOADADDR__              000001 REA    __MAIN_SIZE__             0096F3 REA    
+__MAIN_START__            00080D RLA    __ONCE_RUN__              000BDD RLA    
+__STACKSIZE__             000800 REA    __STARTUP__               000001 REA    
+_cgetc                    000911 RLA    _clrscr                   000975 RLA    
+_cputc                    000997 RLA    _cputs                    000A0A RLA    
+_cputsxy                  000A00 RLA    _gfx_init                 0008B9 RLA    
+_gotoxy                   000A26 RLA    _kbhit                    000A56 RLA    
+_main                     000835 RLA    _sound_init               0008E5 RLA    
+addysp                    0008ED RLA    callmain                  0008FA RLA    
+cursor                    000BDD RLA    donelib                   000986 RLA    
+gotoxy                    000A23 RLA    incsp2                    000A39 RLA    
+incsp4                    000A47 RLA    incsp5                    000A4C RLA    
+incsp6                    000A51 RLA    initlib                   000BDD RLA    
+ldaxysp                   000A66 RLA    plot                      0009D2 RLA    
+popa                      000A6D RLA    ptr1                      00002A RLZ    
+pusha                     000A7B RLA    pushax                    000A91 RLA    
+sp                        000022 RLZ    tmp1                      000032 RLZ    
+zerobss                   000AA7 RLA    
+
+
+Exports list by value:
+----------------------
+__CONSTRUCTOR_COUNT__     000000 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__STARTUP__               000001 REA    __BSS_SIZE__              000001 REA    
+__LOADADDR__              000001 REA    __EXEHDR__                000001 REA    
+sp                        000022 RLZ    ptr1                      00002A RLZ    
+tmp1                      000032 RLZ    __STACKSIZE__             000800 REA    
+__HEADER_LAST__           00080D RLA    __MAIN_START__            00080D RLA    
+_main                     000835 RLA    _gfx_init                 0008B9 RLA    
+_sound_init               0008E5 RLA    addysp                    0008ED RLA    
+callmain                  0008FA RLA    _cgetc                    000911 RLA    
+_clrscr                   000975 RLA    donelib                   000986 RLA    
+_cputc                    000997 RLA    plot                      0009D2 RLA    
+_cputsxy                  000A00 RLA    _cputs                    000A0A RLA    
+gotoxy                    000A23 RLA    _gotoxy                   000A26 RLA    
+incsp2                    000A39 RLA    incsp4                    000A47 RLA    
+incsp5                    000A4C RLA    incsp6                    000A51 RLA    
+_kbhit                    000A56 RLA    ldaxysp                   000A66 RLA    
+popa                      000A6D RLA    pusha                     000A7B RLA    
+pushax                    000A91 RLA    zerobss                   000AA7 RLA    
+__DESTRUCTOR_TABLE__      000BB2 RLA    initlib                   000BDD RLA    
+__ONCE_RUN__              000BDD RLA    __BSS_RUN__               000BDD RLA    
+cursor                    000BDD RLA    __CONSTRUCTOR_TABLE__     000C0C RLA    
+__MAIN_SIZE__             0096F3 REA    __HIMEM__                 009F00 REA    
+CHROUT                    00FFD2 RLA    GETIN                     00FFE4 RLA    
+PLOT                      00FFF0 RLA    
+
+
+Imports list:
+-------------
+CHROUT (kernal.o):
+    crt0.o                    cx16/crt0.s(10)
+    clrscr.o                  cx16/clrscr.s(10)
+GETIN (kernal.o):
+    cgetc.o                   cx16/cgetc.s(10)
+PLOT (kernal.o):
+    cputc.o                   cx16/cputc.s(11)
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__EXEHDR__ (exehdr.o):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(6)
+__HEADER_LAST__ ([linker generated]):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(14)
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(14)
+__HIMEM__ ([linker generated]):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(15)
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(14)
+__LOADADDR__ (loadaddr.o):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(5)
+__MAIN_SIZE__ ([linker generated]):
+    crt0.o                    cx16/crt0.s(11)
+__MAIN_START__ ([linker generated]):
+    crt0.o                    cx16/crt0.s(11)
+__ONCE_RUN__ ([linker generated]):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(15)
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(15)
+__STACKSIZE__ ([linker generated]):
+    [linker generated]        /usr/local/Cellar/cc65/2.19/share/cc65/cfg/cx16.cfg(15)
+__STARTUP__ (crt0.o):
+    main.o                    platform/x16/main.s(13)
+_cgetc (cgetc.o):
+    main.o                    platform/x16/main.s(16)
+_clrscr (clrscr.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(13)
+    main.o                    platform/x16/main.s(14)
+_cputc (cputc.o):
+    cputs.o                   conio/cputs.s(9)
+_cputs (cputs.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(15)
+_cputsxy (cputs.o):
+    main.o                    platform/x16/main.s(15)
+_gfx_init (gfx_x16.o):
+    main.o                    platform/x16/main.s(17)
+_gotoxy (gotoxy.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(14)
+_kbhit (kbhit.o):
+    cgetc.o                   cx16/cgetc.s(10)
+_main (main.o):
+    callmain.o                runtime/callmain.s(11)
+_sound_init (sound_x16.o):
+    main.o                    platform/x16/main.s(18)
+addysp (addysp.o):
+    incsp6.o                  runtime/incsp6.s(8)
+    incsp5.o                  runtime/incsp5.s(8)
+    incsp4.o                  runtime/incsp4.s(8)
+callmain (callmain.o):
+    crt0.o                    cx16/crt0.s(9)
+cursor (_cursor.o):
+    cgetc.o                   cx16/cgetc.s(10)
+donelib (condes.o):
+    crt0.o                    cx16/crt0.s(8)
+gotoxy (gotoxy.o):
+    cputc.o                   cx16/cputc.s(11)
+    cputs.o                   conio/cputs.s(9)
+incsp2 (incsp2.o):
+    sound_x16.o               platform/x16/sound_x16.s(44)
+incsp4 (incsp4.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+incsp5 (incsp5.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+incsp6 (incsp6.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+initlib (condes.o):
+    crt0.o                    cx16/crt0.s(8)
+ldaxysp (ldaxsp.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+plot (cputc.o):
+    gotoxy.o                  cx16/gotoxy.s(9)
+popa (popa.o):
+    gotoxy.o                  cx16/gotoxy.s(9)
+ptr1 (zeropage.o):
+    zerobss.o                 common/zerobss.s(9)
+    cputs.o                   conio/cputs.s(10)
+pusha (pusha.o):
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+    gfx_x16.o                 platform/x16/gfx_x16.s(103)
+    main.o                    platform/x16/main.s(118)
+pushax (pushax.o):
+    callmain.o                runtime/callmain.s(11)
+    sound_x16.o               platform/x16/sound_x16.s(44)
+sp (zeropage.o):
+    addysp.o                  runtime/addysp.s(8)
+    pushax.o                  runtime/pushax.s(8)
+    pusha.o                   runtime/pusha.s(8)
+    popa.o                    runtime/popa.s(8)
+    ldaxsp.o                  runtime/ldaxsp.s(8)
+    incsp2.o                  runtime/incsp2.s(8)
+    crt0.o                    /private/tmp/cc65-20230922-4742-ipl562/cc65-2.19/asminc/zeropage.inc(11)
+    gfx_x16.o                 platform/x16/gfx_x16.s(10)
+tmp1 (zeropage.o):
+    cputs.o                   conio/cputs.s(10)
+zerobss (zerobss.o):
+    crt0.o                    cx16/crt0.s(9)
+

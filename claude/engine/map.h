@@ -69,7 +69,7 @@ typedef struct {
 } Map;
 
 /* Loading */
-int  map_load(Map *m, const char *path);           /* 0 on success, -1 on error */
+int  map_load(Map *m, const char *path);           /* host-only stdio loader; see map_host.c */
 void map_init_empty(Map *m);                        /* all water, no objects */
 
 /* Terrain / cell queries */

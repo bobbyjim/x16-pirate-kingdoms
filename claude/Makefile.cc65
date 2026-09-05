@@ -1,0 +1,55 @@
+# Experimental cc65 build scaffold for Commander X16 work.
+#
+# This intentionally lives beside the host Makefile instead of replacing it.
+# The native Makefile remains the source of truth for tests and the host CLI.
+#
+# Current scope:
+# - links a tiny X16 placeholder frontend by default
+# - excludes the host-only CLI, debug HAL, and stdio-based file loaders
+# - does not yet compile the flat host World/Map core, because that memory
+#   shape is intentionally being replaced by banked/resource-backed access
+#
+# This keeps the portability work visible without pretending the current
+# flat World/Map layout and stdio-driven CLI are already the final X16 build.
+
+PROGRAM      ?= PKX16
+CC65_TARGET  ?= cx16
+CC           = cl65
+OBJDIR       = .obj-cc65
+
+CFLAGS = --cpu 65c02 -t $(CC65_TARGET) -Ors -Iengine
+LDFLAGS = -t $(CC65_TARGET) -m $(PROGRAM).map
+
+# Default frontend is a tiny X16 placeholder that proves the link path.
+# It can be overridden by a fuller frontend later.
+X16_SRCS ?= platform/x16/main.c platform/x16/gfx_x16.c platform/x16/sound_x16.c
+X16_OBJS = $(X16_SRCS:%.c=$(OBJDIR)/%.o)
+
+.PHONY: all frontend-objs prg help clean
+
+all: prg
+
+help:
+	@echo "cc65 scaffold targets:"
+	@echo "  make -f Makefile.cc65           # build a placeholder X16 PRG"
+	@echo "  make -f Makefile.cc65 frontend-objs"
+	@echo "                                 # build only the X16 frontend stub objects"
+	@echo "  make -f Makefile.cc65 prg X16_SRCS='path/to/main.c ...'"
+	@echo "                                 # link a PRG with a different X16 frontend"
+	@echo "  make -f Makefile.cc65 clean"
+	@echo
+	@echo "Excluded on purpose: cli/main.c, platform/debug/*.c, engine/map_host.c, engine/world_host.c."
+	@echo "Deferred on purpose: engine/world.c + engine/map.c remain out of the cc65 link until banked storage replaces the flat host layout."
+
+frontend-objs: $(X16_OBJS)
+	@echo "Built X16 frontend stub objects in $(OBJDIR)."
+
+prg: $(X16_OBJS)
+	$(CC) $(LDFLAGS) -o $(PROGRAM) $(X16_OBJS)
+
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+clean:
+	$(RM) -r $(OBJDIR) $(PROGRAM) $(PROGRAM).map

@@ -163,9 +163,13 @@ typedef struct {
    MapObject object;
 } WorldTileInfo;
 
-/* Loads a .map file (see map.h) and seeds one Settlement per OBJ_SETTLEMENT
-   object found in it, scaling the map's size byte into the 0-15 stat range. */
+/* Host-only wrapper: loads a .map file (see map.h) and then seeds one
+   Settlement per OBJ_SETTLEMENT object found in it. */
 int  world_load(World *w, const char *map_path, unsigned long seed);
+
+/* Portable bootstrap once w->map has already been populated by some other
+   layer (host file loader today, X16 boot/resource loader later). */
+int  world_bootstrap_loaded_map(World *w, unsigned long seed);
 void world_init_empty(World *w, unsigned long seed);
 
 word world_settlement_count(const World *w);

@@ -118,7 +118,7 @@ static void step_trade_link_formation(World *w)
     try_link_settlement(w, &w->settlements[idx]);
 }
 
-int world_load(World *w, const char *map_path, unsigned long seed)
+int world_bootstrap_loaded_map(World *w, unsigned long seed)
 {
     word i, obj_count;
 
@@ -131,8 +131,6 @@ int world_load(World *w, const char *map_path, unsigned long seed)
     w->note_count = 0;
     w->notes_overflowed = 0;
     w->notes_enabled = 0; /* re-enabled after the bootstrap link pass below */
-
-    if (map_load(&w->map, map_path) != 0) return -1;
 
     obj_count = map_object_count(&w->map);
     for (i = 0; i < obj_count && w->settlement_count < MAX_SETTLEMENTS; i++) {

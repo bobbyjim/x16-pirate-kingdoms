@@ -7,6 +7,7 @@ CC      = cc
 CFLAGS  = -std=c99 -Wall -Wextra -Iengine -g
 
 ENGINE_SRCS  = engine/rng.c engine/map.c engine/settlement.c engine/events.c engine/world.c engine/note.c engine/storage.c engine/calendar.c
+HOST_SRCS    = engine/map_host.c engine/world_host.c
 PRESENT_SRCS = present/present.c
 HAL_NULL     = platform/null/gfx_null.c platform/null/sound_null.c
 HAL_DEBUG    = platform/debug/gfx_debug.c platform/debug/sound_debug.c
@@ -21,7 +22,7 @@ cli: pk-cli
 
 # The CLI links the debug HAL so `tick` / `event` print a feedback trace;
 # swap $(HAL_DEBUG) -> $(HAL_NULL) here for a silent run.
-pk-cli: $(ENGINE_SRCS) $(PRESENT_SRCS) $(HAL_DEBUG) $(CLI_SRCS)
+pk-cli: $(ENGINE_SRCS) $(HOST_SRCS) $(PRESENT_SRCS) $(HAL_DEBUG) $(CLI_SRCS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 test: pk-test
@@ -29,7 +30,7 @@ test: pk-test
 
 # Tests assert on World.notes directly and never call the presentation
 # layer, so they don't link present/ or a HAL at all.
-pk-test: $(ENGINE_SRCS) $(TEST_SRCS)
+pk-test: $(ENGINE_SRCS) $(HOST_SRCS) $(TEST_SRCS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
