@@ -27,9 +27,12 @@ static byte view_center_y = MAP_HEIGHT / 2;
 static byte cursor_row = MAP_WINDOW_SIZE / 2;
 static byte cursor_col = MAP_WINDOW_SIZE / 2;
 static int current_mode = CLI_MODE_DEBUG;
+static word game_subtick = 0;
+#define GAME_TICK_THRESHOLD 240
 
 static void print_settlement(const Settlement *s);
 static void print_settlement_header(void);
+static void print_game_help(void);
 
 static byte clamp_view_center(int v)
 {
@@ -114,6 +117,31 @@ static char terrain_glyph(byte terrain)
         case TERRAIN_DESERT:    return 'd';
         case TERRAIN_SWAMP:     return 'w';
         default:                return '?';
+    }
+}
+
+static const char *terrain_name(byte terrain)
+{
+    switch (terrain) {
+        case TERRAIN_WATER:     return "water";
+        case TERRAIN_GRASS:     return "grass";
+        case TERRAIN_FOREST:    return "forest";
+        case TERRAIN_HILLS:     return "hills";
+        case TERRAIN_MOUNTAINS: return "mountains";
+        case TERRAIN_DESERT:    return "desert";
+        case TERRAIN_SWAMP:     return "swamp";
+        default:                return "unknown";
+    }
+}
+
+static const char *travel_ease_name(byte travel_ease)
+{
+    switch (travel_ease) {
+        case 0: return "rough";
+        case 1: return "trail";
+        case 2: return "road";
+        case 3: return "road";
+        default: return "unknown";
     }
 }
 
@@ -543,9 +571,10 @@ static void cmd_status(void)
     alive = world_alive_settlement_count(&world);
     world_trade_link_status_counts(&world, &links_active, &links_disrupted);
     calendar_format(&world.calendar, date, sizeof(date));
-    printf("tick=%lu  date=%s  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
+    printf("tick=%lu  date=%s  subtick=%u/%d  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
            "trade links=%u (%u active, %u disrupted)\n",
-           world.tick, date, alive, world_settlement_count(&world), world.initial_settlement_count,
+           world.tick, date, game_subtick, GAME_TICK_THRESHOLD,
+           alive, world_settlement_count(&world), world.initial_settlement_count,
            world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX,
            world_trade_link_count(&world), links_active, links_disrupted);
 }
@@ -622,11 +651,36 @@ static void cmd_nudge(byte id, const char *focus_arg)
     print_settlement(s);
 }
 
+static word terrain_subtick_cost(byte travel_ease)
+{
+    if (travel_ease >= 3) return 40; /* road / higher ease */
+    return 60; /* rough land */
+}
+
+static void advance_game_subtick_for_move(void)
+{
+    WorldTileInfo tile;
+    word cost;
+
+    world_get_tile_info(&world, current_cursor_world_x(), current_cursor_world_y(), &tile);
+    cost = terrain_subtick_cost(tile.travel_ease);
+    game_subtick += cost;
+
+    while (game_subtick >= GAME_TICK_THRESHOLD) {
+        world_tick(&world);
+        present_drain_notes(&world);
+        game_subtick -= GAME_TICK_THRESHOLD;
+    }
+}
+
 static void cmd_game_move(const char *dir, int amount)
 {
     int dx = 0, dy = 0;
     int i;
     char date[32];
+    WorldTileInfo tile;
+    word last_cost = 0;
+    word total_cost = 0;
 
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
     if (amount < 1) amount = 1;
@@ -641,14 +695,24 @@ static void cmd_game_move(const char *dir, int amount)
     }
 
     for (i = 0; i < amount; i++) {
+        byte x, y;
+
         move_cursor_step(dx, dy);
-        world_tick(&world);
-        present_drain_notes(&world);
+        x = current_cursor_world_x();
+        y = current_cursor_world_y();
+        world_get_tile_info(&world, x, y, &tile);
+        last_cost = terrain_subtick_cost(tile.travel_ease);
+        total_cost += last_cost;
+        advance_game_subtick_for_move();
+
+        printf("move %s -> (%u,%u) %s (%s, cost %u), subtick=%u/%d\n",
+               dir, x, y, terrain_name(tile.terrain), travel_ease_name(tile.travel_ease),
+               last_cost, game_subtick, GAME_TICK_THRESHOLD);
     }
 
     calendar_format(&world.calendar, date, sizeof(date));
-    printf("moved %s %d step(s); tick=%lu date=%s\n",
-           dir, amount, world.tick, date);
+    printf("summary: moved %s %d step(s), total cost=%u, tick=%lu date=%s subtick=%u/%d\n",
+           dir, amount, total_cost, world.tick, date, game_subtick, GAME_TICK_THRESHOLD);
     if (world.note_count > 0) {
         cmd_notes();
     }
@@ -659,6 +723,7 @@ static void set_mode(int mode)
 {
     current_mode = mode;
     if (mode == CLI_MODE_GAME) {
+        game_subtick = 0;
         printf("entered game mode. use 'debug' to return to debug mode.\n");
         print_game_help();
     } else {
@@ -670,7 +735,7 @@ static void print_game_help(void)
 {
     printf(
         "game mode:\n"
-        "  move <n|s|e|w> [n]      move and advance one tick per step\n"
+        "  move <n|s|e|w> [n]      each step adds terrain cost; tick fires at 240\n"
         "  look                    inspect the tile under the cursor\n"
         "  map                     show the current 16x16 map window\n"
         "  tick [n]                advance the world n ticks\n"
