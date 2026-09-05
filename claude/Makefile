@@ -6,12 +6,12 @@
 CC      = cc
 CFLAGS  = -std=c99 -Wall -Wextra -Iengine -g
 
-ENGINE_SRCS  = engine/rng.c engine/map.c engine/settlement.c engine/events.c engine/world.c engine/note.c engine/storage.c
+ENGINE_SRCS  = engine/rng.c engine/map.c engine/settlement.c engine/events.c engine/world.c engine/note.c engine/storage.c engine/calendar.c
 PRESENT_SRCS = present/present.c
 HAL_NULL     = platform/null/gfx_null.c platform/null/sound_null.c
 HAL_DEBUG    = platform/debug/gfx_debug.c platform/debug/sound_debug.c
 CLI_SRCS     = cli/main.c
-TEST_SRCS    = tests/main.c tests/test_settlement.c tests/test_events.c tests/test_map.c tests/test_world.c tests/test_note.c tests/test_storage.c
+TEST_SRCS    = tests/main.c tests/test_settlement.c tests/test_events.c tests/test_map.c tests/test_world.c tests/test_note.c tests/test_storage.c tests/test_calendar.c
 
 .PHONY: all cli test clean
 

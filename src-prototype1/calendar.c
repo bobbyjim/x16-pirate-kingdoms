@@ -17,7 +17,7 @@ typedef struct {
 LongCount today;
 char todaysDate[20];
 
-char *tzolkin_name[] = 
+char *tzolkin_name[] =
 {
    "ha'     ",
    "ik'     ",

@@ -10,9 +10,15 @@
 
 #include "../engine/common.h"
 #include "../engine/world.h"
+#include "../engine/calendar.h"
 #include "../present/present.h"
 
 #define MAP_WINDOW_SIZE 16
+
+enum CliMode {
+    CLI_MODE_DEBUG = 0,
+    CLI_MODE_GAME  = 1
+};
 
 static World world;
 static byte world_ready = 0;
@@ -20,6 +26,7 @@ static byte view_center_x = MAP_WIDTH / 2;
 static byte view_center_y = MAP_HEIGHT / 2;
 static byte cursor_row = MAP_WINDOW_SIZE / 2;
 static byte cursor_col = MAP_WINDOW_SIZE / 2;
+static int current_mode = CLI_MODE_DEBUG;
 
 static void print_settlement(const Settlement *s);
 static void print_settlement_header(void);
@@ -530,12 +537,15 @@ static void cmd_notes(void)
 static void cmd_status(void)
 {
     word alive, links_active, links_disrupted;
+    char date[32];
+
     if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
     alive = world_alive_settlement_count(&world);
     world_trade_link_status_counts(&world, &links_active, &links_disrupted);
-    printf("tick=%lu  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
+    calendar_format(&world.calendar, date, sizeof(date));
+    printf("tick=%lu  date=%s  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
            "trade links=%u (%u active, %u disrupted)\n",
-           world.tick, alive, world_settlement_count(&world), world.initial_settlement_count,
+           world.tick, date, alive, world_settlement_count(&world), world.initial_settlement_count,
            world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX,
            world_trade_link_count(&world), links_active, links_disrupted);
 }
@@ -612,31 +622,132 @@ static void cmd_nudge(byte id, const char *focus_arg)
     print_settlement(s);
 }
 
-static void print_help(void)
+static void cmd_game_move(const char *dir, int amount)
+{
+    int dx = 0, dy = 0;
+    int i;
+    char date[32];
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    if (amount < 1) amount = 1;
+
+    if (strcasecmp(dir, "n") == 0 || strcasecmp(dir, "north") == 0) dy = -1;
+    else if (strcasecmp(dir, "s") == 0 || strcasecmp(dir, "south") == 0) dy = 1;
+    else if (strcasecmp(dir, "e") == 0 || strcasecmp(dir, "east") == 0) dx = 1;
+    else if (strcasecmp(dir, "w") == 0 || strcasecmp(dir, "west") == 0) dx = -1;
+    else {
+        printf("unknown direction '%s' (use n/s/e/w)\n", dir);
+        return;
+    }
+
+    for (i = 0; i < amount; i++) {
+        move_cursor_step(dx, dy);
+        world_tick(&world);
+        present_drain_notes(&world);
+    }
+
+    calendar_format(&world.calendar, date, sizeof(date));
+    printf("moved %s %d step(s); tick=%lu date=%s\n",
+           dir, amount, world.tick, date);
+    if (world.note_count > 0) {
+        cmd_notes();
+    }
+    cmd_map();
+}
+
+static void set_mode(int mode)
+{
+    current_mode = mode;
+    if (mode == CLI_MODE_GAME) {
+        printf("entered game mode. use 'debug' to return to debug mode.\n");
+        print_game_help();
+    } else {
+        printf("entered debug mode.\n");
+    }
+}
+
+static void print_game_help(void)
 {
     printf(
-        "commands:\n"
-        "  load <path>                  load a .map file (e.g. ../src-prototype1/archipelago.map)\n"
-        "  map                          draw a 16x16 ASCII window around the current view center\n"
-        "  visible                      list settlement ids currently inside the 16x16 map window\n"
-        "  center <x> <y>               move the map window center to world coordinates 0..255\n"
-        "  goto <id>                    center the map window on a settlement id\n"
-        "  pan <n|s|e|w> [n]            move the map window center by n tiles (default 1)\n"
-        "  cursor <row> <col>           place the cursor at 0-F,0-F inside the current map window\n"
-        "  move <n|s|e|w> [n]           move the cursor by n tiles, panning the window at edges\n"
-        "  look                         inspect the tile under the current cursor\n"
-        "  inspect <row> <col>          inspect tile 0-F,0-F inside the current map window\n"
-        "  list                         list all settlements\n"
-        "  show <id>                    show one settlement\n"
-        "  tick [n]                     advance the simulation n ticks (default 1)\n"
-        "  status                       show tick, settlement count, event weather\n"
-        "  event <name> <id>            force an event (drought/plague/storm/pirates/market_crash/civil_war)\n"
-        "  build <id> <structure>       build dock/warehouse/fort/townhall/monument in the first empty slot\n"
-        "  nudge <id> <TRA|AGR|GRO|SEC> nudge a settlement toward a cultural focus (structural investment)\n"
-        "  links                        list all trade links (health/throughput/risk/flags)\n"
-        "  notes                        dump the transient-event buffer from the last tick/event\n"
-        "  help                         show this text\n"
-        "  quit                         exit\n");
+        "game mode:\n"
+        "  move <n|s|e|w> [n]      move and advance one tick per step\n"
+        "  look                    inspect the tile under the cursor\n"
+        "  map                     show the current 16x16 map window\n"
+        "  tick [n]                advance the world n ticks\n"
+        "  status                  show date + simulation status\n"
+        "  notes                   dump notes from the last tick\n"
+        "  debug                   return to debug mode\n"
+        "  help                    show this text\n"
+        "  quit                    exit the program\n");
+}
+
+static void print_help(void)
+{
+    const char *left[] = {
+        "load <path>",
+        "map",
+        "visible",
+        "center <x> <y>",
+        "goto <id>",
+        "pan <n|s|e|w> [n]",
+        "cursor <row> <col>",
+        "move <n|s|e|w> [n]",
+        "look",
+        "inspect <row> <col>",
+        "list",
+        "show <id>",
+        "event <name> <id>",
+        "build <id> <structure>",
+        "nudge <id> <TRA|AGR|GRO|SEC>",
+        "links",
+        "tick [n]",
+        "status",
+        "notes",
+        "mode game",
+        "mode debug",
+        "help",
+        "quit"
+    };
+    const char *right[] = {
+        "load a .map file",
+        "draw the map window",
+        "show visible settlements",
+        "center the view",
+        "jump to a settlement",
+        "pan the map window",
+        "place the cursor",
+        "move the cursor",
+        "inspect the tile under the cursor",
+        "inspect a tile in-window",
+        "list all settlements",
+        "show one settlement",
+        "force an event",
+        "build a structure",
+        "nudge a focus",
+        "show trade links",
+        "advance the world",
+        "show tick + weather summary",
+        "dump recent notes",
+        "enter game mode",
+        "return to debug mode",
+        "show this help",
+        "exit the CLI"
+    };
+    int i;
+
+    printf("commands:\n");
+    printf("  %-32s %-32s\n", "map / view", "world / simulation");
+    printf("  %-32s %-32s\n", "--------------------------------", "--------------------------------");
+    for (i = 0; i < 10; i++) {
+        printf("  %-32s %-32s\n", left[i], right[i]);
+    }
+    printf("\n");
+    printf("  %-32s %-32s\n", "settlements", "mode / help");
+    printf("  %-32s %-32s\n", "--------------------------------", "--------------------------------");
+    for (i = 10; i < 22; i++) {
+        printf("  %-32s %-32s\n", left[i], right[i]);
+    }
+    printf("\n");
 }
 
 int main(int argc, char **argv)
@@ -653,8 +764,29 @@ int main(int argc, char **argv)
 
         if (strcmp(cmd, "quit") == 0 || strcmp(cmd, "exit") == 0) {
             break;
+        } else if (strcmp(cmd, "mode") == 0) {
+            char *mode_arg = strtok(NULL, " \t\r\n");
+            if (!mode_arg) { printf("usage: mode <debug|game>\n"); continue; }
+            if (strcasecmp(mode_arg, "game") == 0) {
+                set_mode(CLI_MODE_GAME);
+            } else if (strcasecmp(mode_arg, "debug") == 0) {
+                set_mode(CLI_MODE_DEBUG);
+            } else {
+                printf("unknown mode '%s' (use debug or game)\n", mode_arg);
+            }
+            continue;
+        } else if (strcmp(cmd, "debug") == 0) {
+            set_mode(CLI_MODE_DEBUG);
+            continue;
+        } else if (strcmp(cmd, "game") == 0) {
+            set_mode(CLI_MODE_GAME);
+            continue;
         } else if (strcmp(cmd, "help") == 0) {
-            print_help();
+            if (current_mode == CLI_MODE_GAME) {
+                print_game_help();
+            } else {
+                print_help();
+            }
         } else if (strcmp(cmd, "load") == 0) {
             char *path = strtok(NULL, " \t\r\n");
             if (!path) { printf("usage: load <path>\n"); continue; }
@@ -686,7 +818,11 @@ int main(int argc, char **argv)
             char *dir = strtok(NULL, " \t\r\n");
             char *n = strtok(NULL, " \t\r\n");
             if (!dir) { printf("usage: move <n|s|e|w> [n]\n"); continue; }
-            cmd_move(dir, n ? atoi(n) : 1);
+            if (current_mode == CLI_MODE_GAME) {
+                cmd_game_move(dir, n ? atoi(n) : 1);
+            } else {
+                cmd_move(dir, n ? atoi(n) : 1);
+            }
         } else if (strcmp(cmd, "look") == 0) {
             cmd_look();
         } else if (strcmp(cmd, "inspect") == 0) {

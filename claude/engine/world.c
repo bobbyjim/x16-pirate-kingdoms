@@ -124,6 +124,7 @@ int world_load(World *w, const char *map_path, unsigned long seed)
 
     rng_seed(&w->rng, seed);
     w->tick = 0;
+    calendar_init(&w->calendar);
     w->settlement_count = 0;
     w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
@@ -176,6 +177,7 @@ void world_init_empty(World *w, unsigned long seed)
 {
     rng_seed(&w->rng, seed);
     w->tick = 0;
+    calendar_init(&w->calendar);
     w->settlement_count = 0;
     w->trade_link_count = 0;
     w->event_chance_pct = (EVENT_CHANCE_MIN + EVENT_CHANCE_MAX) / 2;
@@ -765,4 +767,5 @@ void world_tick(World *w)
     }
 
     w->tick++;
+    calendar_advance(&w->calendar, 1);
 }

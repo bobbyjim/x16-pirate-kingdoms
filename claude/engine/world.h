@@ -8,6 +8,7 @@
 #include "trade_link.h"
 #include "events.h"
 #include "note.h"
+#include "calendar.h"
 
 /* NOTE: World (and Map within it) is a flat, statically-sized struct with
    no dynamic allocation -- intentional, since the X16 has no real heap.
@@ -135,6 +136,7 @@ typedef struct {
    TradeLink trade_links[MAX_TRADE_LINKS];
    word trade_link_count;
     unsigned long tick;
+    Calendar calendar;
     Rng rng;
     byte event_chance_pct; /* current position of the event-chance random walk */
     word initial_settlement_count; /* "carrying capacity" baseline for colonize_chance(); 0 = no boost */
