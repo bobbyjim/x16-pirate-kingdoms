@@ -11,6 +11,7 @@ void run_world_tests(void);
 void run_note_tests(void);
 void run_storage_tests(void);
 void run_calendar_tests(void);
+void run_game_rules_tests(void);
 
 int main(void)
 {
@@ -21,6 +22,7 @@ int main(void)
     run_note_tests();
     run_storage_tests();
     run_calendar_tests();
+    run_game_rules_tests();
 
     printf("%d/%d checks passed\n", g_tests_run - g_tests_failed, g_tests_run);
     return g_tests_failed ? 1 : 0;
