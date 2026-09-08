@@ -14,6 +14,7 @@
 #include "../../engine/game_rules.h"
 #include "../../present/present.h"
 
+#include "text_actions.h"
 #include "text_commands.h"
 #include "text_dispatch.h"
 #include "text_render.h"
@@ -794,126 +795,211 @@ static void print_help(void)
     printf("\n");
 }
 
-static void dispatch_mode(void *ctx, const char *mode_arg)
+static int ui_get_mode(void *ctx)
 {
     (void)ctx;
-    if (!mode_arg) { printf("usage: mode <debug|game>\n"); return; }
-    if (strcasecmp(mode_arg, "game") == 0) {
-        set_mode(CLI_MODE_GAME);
-    } else if (strcasecmp(mode_arg, "debug") == 0) {
-        set_mode(CLI_MODE_DEBUG);
-    } else {
-        printf("unknown mode '%s' (use debug or game)\n", mode_arg);
-    }
+    return current_mode;
 }
 
-static void dispatch_debug(void *ctx) { (void)ctx; set_mode(CLI_MODE_DEBUG); }
-static void dispatch_game(void *ctx) { (void)ctx; set_mode(CLI_MODE_GAME); }
-static void dispatch_help(void *ctx)
+static void ui_set_mode(void *ctx, int mode)
 {
     (void)ctx;
-    if (current_mode == CLI_MODE_GAME) print_game_help();
-    else print_help();
+    set_mode(mode);
 }
 
-static void dispatch_load(void *ctx, const char *path)
-{ (void)ctx; if (!path) { printf("usage: load <path>\n"); return; } cmd_load(path); }
-static void dispatch_map(void *ctx) { (void)ctx; cmd_map(); }
-static void dispatch_visible(void *ctx) { (void)ctx; cmd_visible(); }
-static void dispatch_center(void *ctx, const char *x, const char *y)
-{ (void)ctx; if (!x || !y) { printf("usage: center <x> <y>\n"); return; } cmd_center((byte)atoi(x), (byte)atoi(y)); }
-static void dispatch_goto(void *ctx, const char *id)
-{ (void)ctx; if (!id) { printf("usage: goto <id>\n"); return; } cmd_goto((byte)atoi(id)); }
-static void dispatch_pan(void *ctx, const char *dir, const char *n)
-{ (void)ctx; if (!dir) { printf("usage: pan <n|s|e|w> [n]\n"); return; } cmd_pan(dir, n ? atoi(n) : 1); }
-static void dispatch_cursor(void *ctx, const char *row, const char *col)
-{ (void)ctx; if (!row || !col) { printf("usage: cursor <row-hex> <col-hex>\n"); return; } cmd_cursor(row, col); }
-static void dispatch_move(void *ctx, const char *dir, const char *n)
+static void ui_print_help(void *ctx)
 {
     (void)ctx;
-    if (!dir) { printf("usage: move <n|s|e|w> [n]\n"); return; }
-    if (current_mode == CLI_MODE_GAME) cmd_game_move(dir, n ? atoi(n) : 1);
-    else cmd_move(dir, n ? atoi(n) : 1);
+    print_help();
 }
-static void dispatch_found(void *ctx)
-{
-    (void)ctx;
-    if (current_mode != CLI_MODE_GAME) printf("'found' is game-mode only (use: mode game)\n");
-    else cmd_game_found();
-}
-static void dispatch_aid(void *ctx)
-{
-    (void)ctx;
-    if (current_mode != CLI_MODE_GAME) printf("'aid' is game-mode only (use: mode game)\n");
-    else cmd_game_aid();
-}
-static void dispatch_levy(void *ctx)
-{
-    (void)ctx;
-    if (current_mode != CLI_MODE_GAME) printf("'levy' is game-mode only (use: mode game)\n");
-    else cmd_game_levy();
-}
-static void dispatch_look(void *ctx) { (void)ctx; cmd_look(); }
-static void dispatch_inspect(void *ctx, const char *row, const char *col)
-{ (void)ctx; if (!row || !col) { printf("usage: inspect <row-hex> <col-hex>\n"); return; } cmd_inspect(row, col); }
-static void dispatch_list(void *ctx) { (void)ctx; cmd_list(); }
-static void dispatch_status(void *ctx) { (void)ctx; cmd_status(); }
-static void dispatch_show(void *ctx, const char *id)
-{ (void)ctx; if (!id) { printf("usage: show <id>\n"); return; } cmd_show((byte)atoi(id)); }
-static void dispatch_tick(void *ctx, const char *n)
-{ (void)ctx; cmd_tick(n ? atoi(n) : 1); }
-static void dispatch_event(void *ctx, const char *name, const char *id)
-{ (void)ctx; if (!name || !id) { printf("usage: event <name> <id>\n"); return; } cmd_event(name, (byte)atoi(id)); }
-static void dispatch_build(void *ctx, const char *id, const char *type)
-{ (void)ctx; if (!id || !type) { printf("usage: build <id> <structure>\n"); return; } cmd_build((byte)atoi(id), type); }
-static void dispatch_nudge(void *ctx, const char *id, const char *focus)
-{ (void)ctx; if (!id || !focus) { printf("usage: nudge <id> <TRA|AGR|GRO|SEC>\n"); return; } cmd_nudge((byte)atoi(id), focus); }
-static void dispatch_links(void *ctx) { (void)ctx; cmd_links(); }
-static void dispatch_notes(void *ctx) { (void)ctx; cmd_notes(); }
-static void dispatch_unknown(void *ctx, const char *cmd)
-{ (void)ctx; printf("unknown command '%s' (try 'help')\n", cmd); }
 
-static TextDispatchHandlers DISPATCH = {
-    NULL,
-    dispatch_mode,
-    dispatch_debug,
-    dispatch_game,
-    dispatch_help,
-    dispatch_load,
-    dispatch_map,
-    dispatch_visible,
-    dispatch_center,
-    dispatch_goto,
-    dispatch_pan,
-    dispatch_cursor,
-    dispatch_move,
-    dispatch_found,
-    dispatch_aid,
-    dispatch_levy,
-    dispatch_look,
-    dispatch_inspect,
-    dispatch_list,
-    dispatch_status,
-    dispatch_show,
-    dispatch_tick,
-    dispatch_event,
-    dispatch_build,
-    dispatch_nudge,
-    dispatch_links,
-    dispatch_notes,
-    dispatch_unknown
-};
+static void ui_print_game_help(void *ctx)
+{
+    (void)ctx;
+    print_game_help();
+}
+
+static void ui_cmd_load(void *ctx, const char *path)
+{
+    (void)ctx;
+    cmd_load(path);
+}
+
+static void ui_cmd_map(void *ctx)
+{
+    (void)ctx;
+    cmd_map();
+}
+
+static void ui_cmd_visible(void *ctx)
+{
+    (void)ctx;
+    cmd_visible();
+}
+
+static void ui_cmd_center(void *ctx, byte x, byte y)
+{
+    (void)ctx;
+    cmd_center(x, y);
+}
+
+static void ui_cmd_goto(void *ctx, byte id)
+{
+    (void)ctx;
+    cmd_goto(id);
+}
+
+static void ui_cmd_pan(void *ctx, const char *dir, int amount)
+{
+    (void)ctx;
+    cmd_pan(dir, amount);
+}
+
+static void ui_cmd_cursor(void *ctx, const char *row, const char *col)
+{
+    (void)ctx;
+    cmd_cursor(row, col);
+}
+
+static void ui_cmd_move(void *ctx, const char *dir, int amount)
+{
+    (void)ctx;
+    cmd_move(dir, amount);
+}
+
+static void ui_cmd_game_move(void *ctx, const char *dir, int amount)
+{
+    (void)ctx;
+    cmd_game_move(dir, amount);
+}
+
+static void ui_cmd_game_found(void *ctx)
+{
+    (void)ctx;
+    cmd_game_found();
+}
+
+static void ui_cmd_game_aid(void *ctx)
+{
+    (void)ctx;
+    cmd_game_aid();
+}
+
+static void ui_cmd_game_levy(void *ctx)
+{
+    (void)ctx;
+    cmd_game_levy();
+}
+
+static void ui_cmd_look(void *ctx)
+{
+    (void)ctx;
+    cmd_look();
+}
+
+static void ui_cmd_inspect(void *ctx, const char *row, const char *col)
+{
+    (void)ctx;
+    cmd_inspect(row, col);
+}
+
+static void ui_cmd_list(void *ctx)
+{
+    (void)ctx;
+    cmd_list();
+}
+
+static void ui_cmd_status(void *ctx)
+{
+    (void)ctx;
+    cmd_status();
+}
+
+static void ui_cmd_show(void *ctx, byte id)
+{
+    (void)ctx;
+    cmd_show(id);
+}
+
+static void ui_cmd_tick(void *ctx, int n)
+{
+    (void)ctx;
+    cmd_tick(n);
+}
+
+static void ui_cmd_event(void *ctx, const char *name, byte id)
+{
+    (void)ctx;
+    cmd_event(name, id);
+}
+
+static void ui_cmd_build(void *ctx, byte id, const char *type)
+{
+    (void)ctx;
+    cmd_build(id, type);
+}
+
+static void ui_cmd_nudge(void *ctx, byte id, const char *focus)
+{
+    (void)ctx;
+    cmd_nudge(id, focus);
+}
+
+static void ui_cmd_links(void *ctx)
+{
+    (void)ctx;
+    cmd_links();
+}
+
+static void ui_cmd_notes(void *ctx)
+{
+    (void)ctx;
+    cmd_notes();
+}
 
 int text_ui_run(int argc, char **argv)
 {
     char line[256];
+    TextDispatchHandlers dispatch;
+    TextActionApi action_api;
+
+    action_api.ctx = NULL;
+    action_api.get_mode = ui_get_mode;
+    action_api.set_mode = ui_set_mode;
+    action_api.print_help = ui_print_help;
+    action_api.print_game_help = ui_print_game_help;
+    action_api.cmd_load = ui_cmd_load;
+    action_api.cmd_map = ui_cmd_map;
+    action_api.cmd_visible = ui_cmd_visible;
+    action_api.cmd_center = ui_cmd_center;
+    action_api.cmd_goto = ui_cmd_goto;
+    action_api.cmd_pan = ui_cmd_pan;
+    action_api.cmd_cursor = ui_cmd_cursor;
+    action_api.cmd_move = ui_cmd_move;
+    action_api.cmd_game_move = ui_cmd_game_move;
+    action_api.cmd_game_found = ui_cmd_game_found;
+    action_api.cmd_game_aid = ui_cmd_game_aid;
+    action_api.cmd_game_levy = ui_cmd_game_levy;
+    action_api.cmd_look = ui_cmd_look;
+    action_api.cmd_inspect = ui_cmd_inspect;
+    action_api.cmd_list = ui_cmd_list;
+    action_api.cmd_status = ui_cmd_status;
+    action_api.cmd_show = ui_cmd_show;
+    action_api.cmd_tick = ui_cmd_tick;
+    action_api.cmd_event = ui_cmd_event;
+    action_api.cmd_build = ui_cmd_build;
+    action_api.cmd_nudge = ui_cmd_nudge;
+    action_api.cmd_links = ui_cmd_links;
+    action_api.cmd_notes = ui_cmd_notes;
+
+    text_actions_build_dispatch(&action_api, &dispatch);
 
     printf("Pirate Kingdoms simulation CLI. Type 'help' for commands.\n");
     present_init();
     if (argc > 1) cmd_load(argv[1]);
 
     while (fgets(line, sizeof(line), stdin)) {
-        if (!text_dispatch_execute(line, &DISPATCH)) break;
+        if (!text_dispatch_execute(line, &dispatch)) break;
     }
 
     return 0;

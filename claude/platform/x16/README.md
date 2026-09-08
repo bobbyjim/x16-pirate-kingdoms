@@ -16,9 +16,10 @@ The X16 path is split deliberately:
 
 Default values in the script are:
 
-- basename: `KINGDOM1`
+- basename: `PKGAME`
 - map start: bank `1`, address `$A000`
-- save start: bank `6`, address `$A000`
+- save start: bank `20`, address `$A000`
+- program: `PKGAME.PRG`
 
 The intended flow is:
 
@@ -29,7 +30,7 @@ The intended flow is:
 5. Select the save bank with `POKE 0, SB`.
 6. Load `<base>.SAV` into banked RAM at `SA`.
 7. Restore bank `0`.
-8. Load `PKX16`.
+8. Load `<base>.PRG`.
 
 ## Important Assumption To Verify
 

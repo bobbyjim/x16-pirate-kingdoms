@@ -11,7 +11,7 @@ HOST_SRCS    = engine/map_host.c engine/world_host.c
 PRESENT_SRCS = present/present.c
 HAL_NULL     = platform/null/gfx_null.c platform/null/sound_null.c
 HAL_DEBUG    = platform/debug/gfx_debug.c platform/debug/sound_debug.c
-CLI_SRCS     = cli/main.c platform/text/text_ui.c platform/text/text_render.c platform/text/text_commands.c platform/text/text_dispatch.c
+CLI_SRCS     = cli/main.c platform/text/text_ui.c platform/text/text_render.c platform/text/text_commands.c platform/text/text_dispatch.c platform/text/text_actions.c
 TEST_SRCS    = tests/main.c tests/test_settlement.c tests/test_events.c tests/test_map.c tests/test_world.c tests/test_note.c tests/test_storage.c tests/test_calendar.c tests/test_game_rules.c
 
 .PHONY: all cli test clean
