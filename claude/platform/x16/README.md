@@ -8,21 +8,28 @@ The X16 path is split deliberately:
 
 ## Current Boot Contract
 
-`BOOT.BAS` currently assumes:
+`BOOT.BAS` currently uses a basename bundle:
 
-- map file: `ARCHIPELAGO.MAP`
-- program file: `PKX16`
-- starting RAM bank: `1`
-- starting address: `$A000`
+- `<base>.MAP` for static world/map data
+- `<base>.SAV` for dynamic game state
+- `PKX16` for the program binary
+
+Default values in the script are:
+
+- basename: `KINGDOM1`
+- map start: bank `1`, address `$A000`
+- save start: bank `6`, address `$A000`
 
 The intended flow is:
 
 1. Show splash screen.
 2. Wait for player input.
-3. Select the starting bank with `POKE 0, MAPBANK`.
-4. Load the map into banked RAM starting at `MAPADDR`.
-5. Restore bank `0`.
-6. Load the cc65 program.
+3. Select the map bank with `POKE 0, MB`.
+4. Load `<base>.MAP` into banked RAM at `MA`.
+5. Select the save bank with `POKE 0, SB`.
+6. Load `<base>.SAV` into banked RAM at `SA`.
+7. Restore bank `0`.
+8. Load `PKX16`.
 
 ## Important Assumption To Verify
 

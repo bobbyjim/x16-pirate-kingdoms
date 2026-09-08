@@ -29,6 +29,12 @@ static byte cursor_col = MAP_WINDOW_SIZE / 2;
 static int current_mode = CLI_MODE_DEBUG;
 static word game_subtick = 0;
 #define GAME_TICK_THRESHOLD 240
+#define GAME_START_SUPPLIES 100
+#define GAME_MOVE_SUPPLY_COST 1
+#define GAME_AID_SUPPLY_COST 6
+#define GAME_LEVY_SUPPLY_GAIN 20
+static int game_supplies = GAME_START_SUPPLIES;
+static int game_reputation = 0;
 
 static void print_settlement(const Settlement *s);
 static void print_settlement_header(void);
@@ -74,6 +80,13 @@ static byte current_cursor_world_x(void)
 static byte current_cursor_world_y(void)
 {
     return (byte)(current_origin_y() + cursor_row);
+}
+
+static Settlement *current_cursor_settlement(void)
+{
+    const Settlement *s = world_find_settlement_at(&world, current_cursor_world_x(), current_cursor_world_y());
+    if (!s) return NULL;
+    return world_get_settlement(&world, s->id);
 }
 
 static void sync_cursor_to_world(byte x, byte y)
@@ -581,9 +594,9 @@ static void cmd_status(void)
     alive = world_alive_settlement_count(&world);
     world_trade_link_status_counts(&world, &links_active, &links_disrupted);
     calendar_format(&world.calendar, date, sizeof(date));
-    printf("tick=%lu  date=%s  subtick=%u/%d  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
+        printf("tick=%lu  date=%s  subtick=%u/%d  supplies=%d rep=%d  settlements=%u alive / %u total (baseline %u)  event weather=%u%% (range %d-%d%%)\n"
            "trade links=%u (%u active, %u disrupted)\n",
-           world.tick, date, game_subtick, GAME_TICK_THRESHOLD,
+            world.tick, date, game_subtick, GAME_TICK_THRESHOLD, game_supplies, game_reputation,
            alive, world_settlement_count(&world), world.initial_settlement_count,
            world.event_chance_pct, EVENT_CHANCE_MIN, EVENT_CHANCE_MAX,
            world_trade_link_count(&world), links_active, links_disrupted);
@@ -687,6 +700,7 @@ static void cmd_game_move(const char *dir, int amount)
 {
     int dx = 0, dy = 0;
     int i;
+    int moved = 0;
     char date[32];
     WorldTileInfo tile;
     word last_cost = 0;
@@ -707,6 +721,12 @@ static void cmd_game_move(const char *dir, int amount)
     for (i = 0; i < amount; i++) {
         byte x, y;
 
+        if (game_supplies < GAME_MOVE_SUPPLY_COST) {
+            printf("out of supplies: reach a settlement and use 'levy'\n");
+            break;
+        }
+        game_supplies -= GAME_MOVE_SUPPLY_COST;
+
         move_cursor_step(dx, dy);
         recenter_view_on_cursor();
         x = current_cursor_world_x();
@@ -715,6 +735,7 @@ static void cmd_game_move(const char *dir, int amount)
         last_cost = terrain_subtick_cost(tile.travel_ease);
         total_cost += last_cost;
         advance_game_subtick_for_move();
+        moved++;
 
         printf("move %s -> (%u,%u) %s (%s, cost %u), subtick=%u/%d\n",
                dir, x, y, terrain_name(tile.terrain), travel_ease_name(tile.travel_ease),
@@ -722,12 +743,71 @@ static void cmd_game_move(const char *dir, int amount)
     }
 
     calendar_format(&world.calendar, date, sizeof(date));
-    printf("summary: moved %s %d step(s), total cost=%u, tick=%lu date=%s subtick=%u/%d\n",
-           dir, amount, total_cost, world.tick, date, game_subtick, GAME_TICK_THRESHOLD);
+    printf("summary: moved %s %d/%d step(s), total cost=%u, tick=%lu date=%s subtick=%u/%d supplies=%d rep=%d\n",
+           dir, moved, amount, total_cost, world.tick, date, game_subtick, GAME_TICK_THRESHOLD,
+           game_supplies, game_reputation);
     if (world.note_count > 0) {
         cmd_notes();
     }
     cmd_map();
+}
+
+static void cmd_game_aid(void)
+{
+    Settlement *s;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    s = current_cursor_settlement();
+    if (!s || !s->alive) {
+        printf("aid requires the cursor to be on a live settlement tile\n");
+        return;
+    }
+    if (game_supplies < GAME_AID_SUPPLY_COST) {
+        printf("not enough supplies: need %d, have %d\n", GAME_AID_SUPPLY_COST, game_supplies);
+        return;
+    }
+
+    game_supplies -= GAME_AID_SUPPLY_COST;
+    settlement_repair_characteristic(s, CHAR_POPULATION, 2);
+    settlement_repair_characteristic(s, CHAR_COMMERCE, 2);
+    settlement_repair_characteristic(s, CHAR_DEFENSE, 1);
+    settlement_nudge_focus(s, CULTURE_SEC);
+    game_reputation += 2;
+
+    world_tick(&world);
+    present_drain_notes(&world);
+
+    printf("aided settlement #%u: supplies=%d rep=%d tick=%lu\n",
+           s->id, game_supplies, game_reputation, world.tick);
+    print_settlement_header();
+    print_settlement(s);
+    if (world.note_count > 0) cmd_notes();
+}
+
+static void cmd_game_levy(void)
+{
+    Settlement *s;
+
+    if (!world_ready) { printf("no world loaded (use: load <path>)\n"); return; }
+    s = current_cursor_settlement();
+    if (!s || !s->alive) {
+        printf("levy requires the cursor to be on a live settlement tile\n");
+        return;
+    }
+
+    settlement_damage_characteristic(s, CHAR_INDUSTRY, 2);
+    settlement_damage_characteristic(s, CHAR_COMMERCE, 1);
+    game_supplies += GAME_LEVY_SUPPLY_GAIN;
+    game_reputation -= 1;
+
+    world_tick(&world);
+    present_drain_notes(&world);
+
+    printf("levied settlement #%u: +%d supplies -> %d, rep=%d, tick=%lu\n",
+           s->id, GAME_LEVY_SUPPLY_GAIN, game_supplies, game_reputation, world.tick);
+    print_settlement_header();
+    print_settlement(s);
+    if (world.note_count > 0) cmd_notes();
 }
 
 static void set_mode(int mode)
@@ -735,6 +815,8 @@ static void set_mode(int mode)
     current_mode = mode;
     if (mode == CLI_MODE_GAME) {
         game_subtick = 0;
+        game_supplies = GAME_START_SUPPLIES;
+        game_reputation = 0;
         printf("entered game mode. use 'debug' to return to debug mode.\n");
         print_game_help();
     } else {
@@ -747,10 +829,12 @@ static void print_game_help(void)
     printf(
         "game mode:\n"
         "  move <n|s|e|w> [n]      recenter view, add terrain cost; tick fires at 240\n"
+        "  aid                     spend supplies to strengthen this settlement\n"
+        "  levy                    gain supplies by straining this settlement\n"
         "  look                    inspect the tile under the cursor\n"
         "  map                     show the current 16x16 map window\n"
         "  tick [n]                advance the world n ticks\n"
-        "  status                  show date + simulation status\n"
+        "  status                  show date + simulation status + supplies\n"
         "  notes                   dump notes from the last tick\n"
         "  debug                   return to debug mode\n"
         "  help                    show this text\n"
@@ -898,6 +982,18 @@ int main(int argc, char **argv)
                 cmd_game_move(dir, n ? atoi(n) : 1);
             } else {
                 cmd_move(dir, n ? atoi(n) : 1);
+            }
+        } else if (strcmp(cmd, "aid") == 0) {
+            if (current_mode != CLI_MODE_GAME) {
+                printf("'aid' is game-mode only (use: mode game)\n");
+            } else {
+                cmd_game_aid();
+            }
+        } else if (strcmp(cmd, "levy") == 0) {
+            if (current_mode != CLI_MODE_GAME) {
+                printf("'levy' is game-mode only (use: mode game)\n");
+            } else {
+                cmd_game_levy();
             }
         } else if (strcmp(cmd, "look") == 0) {
             cmd_look();
